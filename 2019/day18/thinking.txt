@@ -1,0 +1,160 @@
+
+> (define data (get-data "test-data1.txt"))
+'#hash(((7 . 1) . "a")
+       ((6 . 1) . ".")
+       ((1 . 1) . "b")
+       ("b" . (1 . 1))
+       ((2 . 1) . ".")
+       ((5 . 1) . "@")
+       ((4 . 1) . ".")
+       ("a" . (7 . 1))
+       ("A" . (3 . 1))
+       ((3 . 1) . "A")
+       ("@" . (5 . 1)))
+
+> (make-links data)
+Hi Edward A, been-there:(), count-that:1, xy:(5 . 1), cur-char:@
+Hi Edward B, coors: ((4 . 1) (6 . 1))
+Hi Edward C, char:.
+Hi Edward A, been-there:((4 . 1)), count-that:2, xy:(4 . 1), cur-char:@
+Hi Edward B, coors: ((3 . 1) (5 . 1))
+Hi Edward C, char:A
+Hi Edward A, been-there:(), count-that:1, xy:(3 . 1), cur-char:A
+Hi Edward B, coors: ((2 . 1) (4 . 1))
+Hi Edward C, char:.
+Hi Edward A, been-there:((2 . 1)), count-that:2, xy:(2 . 1), cur-char:A
+Hi Edward B, coors: ((1 . 1) (3 . 1))
+Hi Edward C, char:b
+Hi Edward A, been-there:(), count-that:1, xy:(1 . 1), cur-char:b
+Hi Edward B, coors: ((2 . 1))
+Hi Edward C, char:.
+Hi Edward A, been-there:((2 . 1)), count-that:2, xy:(2 . 1), cur-char:b
+Hi Edward B, coors: ((1 . 1) (3 . 1))
+Hi Edward C, char:b
+Hi Edward A, been-there:((1 . 1) (2 . 1)), count-that:3, xy:(1 . 1), cur-char:b
+Hi Edward B, coors: ()
+Hi Edward C, char:A
+Hi Edward A, been-there:((3 . 1) (2 . 1)), count-that:3, xy:(3 . 1), cur-char:b
+Hi Edward B, coors: ((4 . 1))
+Hi Edward C, char:.
+Hi Edward A, been-there:((4 . 1) (3 . 1) (2 . 1)), count-that:4, xy:(4 . 1), cur-char:b
+Hi Edward B, coors: ((5 . 1))
+Hi Edward C, char:@
+Hi Edward A, been-there:((5 . 1) (4 . 1) (3 . 1) (2 . 1)), count-that:5, xy:(5 . 1), cur-char:b
+Hi Edward B, coors: ((6 . 1))
+Hi Edward C, char:.
+Hi Edward A, been-there:((6 . 1) (5 . 1) (4 . 1) (3 . 1) (2 . 1)), count-that:6, xy:(6 . 1), cur-char:b
+Hi Edward B, coors: ((7 . 1))
+Hi Edward C, char:a
+Hi Edward A, been-there:(), count-that:1, xy:(7 . 1), cur-char:a
+Hi Edward B, coors: ((6 . 1))
+Hi Edward C, char:.
+Hi Edward A, been-there:((6 . 1)), count-that:2, xy:(6 . 1), cur-char:a
+Hi Edward B, coors: ((5 . 1) (7 . 1))
+Hi Edward C, char:@
+Hi Edward A, been-there:((5 . 1) (6 . 1)), count-that:3, xy:(5 . 1), cur-char:a
+Hi Edward B, coors: ((4 . 1))
+Hi Edward C, char:.
+Hi Edward A, been-there:((4 . 1) (5 . 1) (6 . 1)), count-that:4, xy:(4 . 1), cur-char:a
+Hi Edward B, coors: ((3 . 1))
+Hi Edward C, char:A
+Hi Edward A, been-there:((3 . 1) (4 . 1) (5 . 1) (6 . 1)), count-that:5, xy:(3 . 1), cur-char:a
+Hi Edward B, coors: ((2 . 1))
+Hi Edward C, char:.
+Hi Edward A, been-there:((2 . 1) (3 . 1) (4 . 1) (5 . 1) (6 . 1)), count-that:6, xy:(2 . 1), cur-char:a
+Hi Edward B, coors: ((1 . 1))
+Hi Edward C, char:b
+Hi Edward A, been-there:((1 . 1) (2 . 1) (3 . 1) (4 . 1) (5 . 1) (6 . 1)), count-that:7, xy:(1 . 1), cur-char:a
+Hi Edward B, coors: ()
+Hi Edward C, char:a
+Hi Edward A, been-there:((7 . 1) (6 . 1)), count-that:3, xy:(7 . 1), cur-char:a
+Hi Edward B, coors: ()
+Hi Edward C, char:A
+Hi Edward A, been-there:((3 . 1) (2 . 1)), count-that:3, xy:(3 . 1), cur-char:A
+Hi Edward B, coors: ((4 . 1))
+Hi Edward C, char:.
+Hi Edward A, been-there:((4 . 1) (3 . 1) (2 . 1)), count-that:4, xy:(4 . 1), cur-char:A
+Hi Edward B, coors: ((5 . 1))
+Hi Edward C, char:@
+Hi Edward A, been-there:((5 . 1) (4 . 1) (3 . 1) (2 . 1)), count-that:5, xy:(5 . 1), cur-char:A
+Hi Edward B, coors: ((6 . 1))
+Hi Edward C, char:.
+Hi Edward A, been-there:((6 . 1) (5 . 1) (4 . 1) (3 . 1) (2 . 1)), count-that:6, xy:(6 . 1), cur-char:A
+Hi Edward B, coors: ((7 . 1))
+Hi Edward C, char:a
+Hi Edward A, been-there:((7 . 1) (6 . 1) (5 . 1) (4 . 1) (3 . 1) (2 . 1)), count-that:7, xy:(7 . 1), cur-char:A
+Hi Edward B, coors: ()
+Hi Edward C, char:.
+Hi Edward A, been-there:((4 . 1)), count-that:2, xy:(4 . 1), cur-char:A
+Hi Edward B, coors: ((3 . 1) (5 . 1))
+Hi Edward C, char:A
+Hi Edward A, been-there:((3 . 1) (4 . 1)), count-that:3, xy:(3 . 1), cur-char:A
+Hi Edward B, coors: ((2 . 1))
+Hi Edward C, char:.
+Hi Edward A, been-there:((2 . 1) (3 . 1) (4 . 1)), count-that:4, xy:(2 . 1), cur-char:A
+Hi Edward B, coors: ((1 . 1))
+Hi Edward C, char:b
+Hi Edward A, been-there:((1 . 1) (2 . 1) (3 . 1) (4 . 1)), count-that:5, xy:(1 . 1), cur-char:A
+Hi Edward B, coors: ()
+Hi Edward C, char:@
+Hi Edward A, been-there:((5 . 1) (4 . 1)), count-that:3, xy:(5 . 1), cur-char:A
+Hi Edward B, coors: ((6 . 1))
+Hi Edward C, char:.
+Hi Edward A, been-there:((6 . 1) (5 . 1) (4 . 1)), count-that:4, xy:(6 . 1), cur-char:A
+Hi Edward B, coors: ((7 . 1))
+Hi Edward C, char:a
+Hi Edward A, been-there:((7 . 1) (6 . 1) (5 . 1) (4 . 1)), count-that:5, xy:(7 . 1), cur-char:A
+Hi Edward B, coors: ()
+Hi Edward C, char:@
+Hi Edward A, been-there:((5 . 1) (4 . 1)), count-that:3, xy:(5 . 1), cur-char:@
+Hi Edward B, coors: ((6 . 1))
+Hi Edward C, char:.
+Hi Edward A, been-there:((6 . 1) (5 . 1) (4 . 1)), count-that:4, xy:(6 . 1), cur-char:@
+Hi Edward B, coors: ((7 . 1))
+Hi Edward C, char:a
+Hi Edward A, been-there:((7 . 1) (6 . 1) (5 . 1) (4 . 1)), count-that:5, xy:(7 . 1), cur-char:@
+Hi Edward B, coors: ()
+Hi Edward C, char:.
+Hi Edward A, been-there:((6 . 1)), count-that:2, xy:(6 . 1), cur-char:@
+Hi Edward B, coors: ((5 . 1) (7 . 1))
+Hi Edward C, char:@
+Hi Edward A, been-there:((5 . 1) (6 . 1)), count-that:3, xy:(5 . 1), cur-char:@
+Hi Edward B, coors: ((4 . 1))
+Hi Edward C, char:.
+Hi Edward A, been-there:((4 . 1) (5 . 1) (6 . 1)), count-that:4, xy:(4 . 1), cur-char:@
+Hi Edward B, coors: ((3 . 1))
+Hi Edward C, char:A
+Hi Edward A, been-there:((3 . 1) (4 . 1) (5 . 1) (6 . 1)), count-that:5, xy:(3 . 1), cur-char:@
+Hi Edward B, coors: ((2 . 1))
+Hi Edward C, char:.
+Hi Edward A, been-there:((2 . 1) (3 . 1) (4 . 1) (5 . 1) (6 . 1)), count-that:6, xy:(2 . 1), cur-char:@
+Hi Edward B, coors: ((1 . 1))
+Hi Edward C, char:b
+Hi Edward A, been-there:((1 . 1) (2 . 1) (3 . 1) (4 . 1) (5 . 1) (6 . 1)), count-that:7, xy:(1 . 1), cur-char:@
+Hi Edward B, coors: ()
+Hi Edward C, char:a
+Hi Edward A, been-there:((7 . 1) (6 . 1)), count-that:3, xy:(7 . 1), cur-char:@
+Hi Edward B, coors: ()
+
+'#hash(("@" . (("A" . 2))) ("A" . (("b" . 2))) ("a" . ()) ("b" . (("a" . 6))))
+
+
+; #########
+; #b.A.@.a# (Goal: 8) @->a->A->b  @->2->4->2 = 8
+; #########
+;
+; #hash((@ . ((a . 2) (A . 2)))  ; Seeing everything (unrealistic)
+;       (A . ((a . 4) (b . 2)))
+;       (a . ((A . 4) (b . 6)))
+;       (b . ((A . 2) (a . 6))))
+
+; #hash((@ . ((a . 2) (A . 2)))  ; Only seeing the things unprocessed
+;       (A . ((b . 2)))
+;       (a . ((A . 4)))
+;       (b . ()))
+
+; #hash(("@" . (("A" . 2)))      ; Currently getting
+;       ("A" . (("b" . 2)))
+;       ("a" . ())
+;       ("b" . (("a" . 6))))
+

@@ -1,0 +1,14 @@
+digraph G {
+  padx -> pbga [label="66"];
+  padx -> havc [label="66"];
+  padx -> qoyq [label="66"];
+  tknk -> ugml [label="68"];
+  tknk -> padx [label="45"];
+  tknk -> fwft [label="72"];
+  fwft -> ktlj [label="57"];
+  fwft -> cntj [label="57"];
+  fwft -> xhth [label="57"];
+  ugml -> gyxo [label="61"];
+  ugml -> ebii [label="61"];
+  ugml -> jptl [label="61"];
+}

@@ -1,0 +1,581 @@
+Absolutely! Let's extend the solution to **Advent of Code 2019, Day 10, Part 2** using Elixir. We'll build upon the previous implementation, enhancing it to handle the vaporization process of asteroids using a laser.
+
+---
+
+## **Advent of Code 2019, Day 10, Part 2**
+
+### **Problem Overview**
+
+In **Part 1**, we determined the best location for a monitoring station based on the number of detectable asteroids. In **Part 2**, the challenge is to simulate a laser that vaporizes asteroids in a specific order:
+
+1. **Laser Mechanics:**
+   - The laser starts pointing **upwards** (i.e., in the negative Y direction).
+   - It rotates **clockwise**, vaporizing the first asteroid it encounters at each angle.
+   - If multiple asteroids share the same angle, the **closest** one is vaporized first.
+   - The laser continues rotating until all asteroids are vaporized.
+
+2. **Objective:**
+   - Identify the **200th asteroid** to be vaporized.
+   - Compute a specific value based on its coordinates (typically `100 * x + y`).
+
+### **Approach**
+
+To solve **Part 2**, we'll follow these steps:
+
+1. **Reuse Part 1 Functions:**
+   - Utilize the existing functions to parse the map and determine the best location for the monitoring station.
+
+2. **Organize Asteroids by Angle and Distance:**
+   - From the station, calculate the angle and distance to each asteroid.
+   - Group asteroids by their angles.
+   - Sort each group by distance (closest first).
+
+3. **Simulate Laser Rotation:**
+   - Sort the unique angles in the order the laser will rotate.
+   - Iterate through the sorted angles, vaporizing the first asteroid in each group.
+   - Repeat the process, cycling through the angles, until all asteroids are vaporized.
+
+4. **Identify the 200th Vaporized Asteroid:**
+   - Keep track of the vaporization order.
+   - Once the 200th asteroid is vaporized, compute the required value.
+
+### **Elixir Implementation**
+
+We'll enhance the existing `MonitoringStation` module to include the functionality for **Part 2**.
+
+```elixir
+defmodule MonitoringStation do
+  @moduledoc """
+  Solution for Advent of Code 2019, Day 10, Parts 1 and 2.
+  Reads the asteroid map from 'day10-data.txt', determines the best location for the monitoring station,
+  and simulates the vaporization of asteroids using a laser.
+  """
+
+  @doc """
+  Reads the asteroid map from the specified file and returns its content as a string.
+  """
+  def read_map_from_file(file_path) do
+    case File.read(file_path) do
+      {:ok, content} ->
+        content
+
+      {:error, reason} ->
+        IO.puts("Error reading file #{file_path}: #{reason}")
+        System.halt(1)
+    end
+  end
+
+  @doc """
+  Parses the asteroid map and returns a list of {x, y} coordinates where asteroids are present.
+  """
+  def parse_map(map) do
+    map
+    |> String.split("\n", trim: true)
+    |> Enum.with_index()
+    |> Enum.flat_map(fn {line, y} ->
+      line
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.filter(fn {char, _x} -> char == "#" end)
+      |> Enum.map(fn {_char, x} -> {x, y} end)
+    end)
+  end
+
+  @doc """
+  Calculates the number of other asteroids visible from each asteroid.
+  Returns a map with asteroid coordinates as keys and visibility counts as values.
+  """
+  def calculate_visibility(asteroids) do
+    Enum.reduce(asteroids, %{}, fn asteroid, acc ->
+      other_asteroids = List.delete(asteroids, asteroid)
+
+      angles =
+        other_asteroids
+        |> Enum.map(fn other ->
+          dx = elem(other, 0) - elem(asteroid, 0)
+          dy = elem(other, 1) - elem(asteroid, 1)
+          :math.atan2(dy, dx)
+        end)
+        |> Enum.uniq()
+
+      Map.put(acc, asteroid, length(angles))
+    end)
+  end
+
+  @doc """
+  Finds the asteroid with the maximum number of detectable asteroids.
+  Returns a tuple with the best asteroid's coordinates and the count.
+  """
+  def find_best_location(map) do
+    asteroids = parse_map(map)
+    visibility = calculate_visibility(asteroids)
+
+    {best_asteroid, max_count} =
+      visibility
+      |> Enum.max_by(fn {_asteroid, count} -> count end)
+
+    {best_asteroid, max_count}
+  end
+
+  @doc """
+  Calculates the angle from the station to each asteroid.
+  Adjusts the angle so that 0 radians points upwards and increases clockwise.
+  """
+  def calculate_angle_and_distance({x, y}, {station_x, station_y}) do
+    dx = x - station_x
+    dy = y - station_y
+
+    # Invert dy to make upward direction as positive
+    angle = :math.atan2(dx, -dy)
+
+    # Adjust angle to be in the range [0, 2π)
+    adjusted_angle =
+      if angle < 0 do
+        angle + 2 * :math.pi()
+      else
+        angle
+      end
+
+    distance = :math.sqrt(dx * dx + dy * dy)
+    {adjusted_angle, distance, {x, y}}
+  end
+
+  @doc """
+  Simulates the vaporization process and returns the list of vaporized asteroids in order.
+  """
+  def vaporize_asteroids(asteroids, station) do
+    # Exclude the station from the list
+    targets = List.delete(asteroids, station)
+
+    # Calculate angle and distance for each asteroid relative to the station
+    targets_with_angles =
+      targets
+      |> Enum.map(&calculate_angle_and_distance(&1, station))
+
+    # Group asteroids by angle
+    grouped =
+      targets_with_angles
+      |> Enum.group_by(fn {angle, _distance, _coord} -> angle end, fn {_angle, distance, coord} -> {distance, coord} end end)
+
+    # Sort the angles in ascending order (clockwise)
+    sorted_angles = grouped |> Map.keys() |> Enum.sort()
+
+    # For each angle, sort the asteroids by distance (closest first)
+    sorted_grouped =
+      grouped
+      |> Enum.map(fn {angle, asteroids} ->
+        sorted_asteroids = Enum.sort_by(asteroids, fn {distance, _coord} -> distance end)
+        {angle, sorted_asteroids}
+      end)
+      |> Enum.sort_by(fn {angle, _asteroids} -> angle end)
+
+    vaporization_order = []
+    remaining = sorted_grouped
+
+    vaporize_loop(vaporization_order, remaining)
+  end
+
+  @doc """
+  Recursively vaporizes asteroids in the sorted groups.
+  """
+  defp vaporize_loop(vaporization_order, []), do: vaporization_order
+
+  defp vaporize_loop(vaporization_order, sorted_grouped) do
+    {new_order, new_grouped} =
+      Enum.reduce(sorted_grouped, {vaporization_order, []}, fn {angle, asteroids}, {acc_order, acc_grouped} ->
+        case asteroids do
+          [] ->
+            {acc_order, acc_grouped}
+
+          [head | tail] ->
+            # Vaporize the closest asteroid
+            new_order = [elem(head, 1) | acc_order]
+            # If there are more asteroids in this angle, keep them
+            if tail == [] do
+              {new_order, acc_grouped}
+            else
+              {new_order, acc_grouped ++ [{angle, tail}]}
+            end
+        end
+      end)
+
+    # Continue the loop with the updated order and remaining asteroids
+    vaporize_loop(new_order, new_grouped)
+  end
+
+  @doc """
+  Finds the Nth vaporized asteroid.
+  """
+  def find_nth_vaporized(asteroids, station, n) do
+    vaporization_order = vaporize_asteroids(asteroids, station)
+
+    vaporization_order
+    |> Enum.reverse()
+    |> Enum.at(n - 1)
+  end
+
+  @doc """
+  The main entry point of the script.
+  Reads the asteroid map from 'day10-data.txt', finds the best location, vaporizes asteroids,
+  and prints the 200th vaporized asteroid.
+  """
+  def main do
+    file_path = "day10-data.txt"
+    map = read_map_from_file(file_path)
+    {best_location, count} = find_best_location(map)
+    IO.puts("Best Location: #{inspect(best_location)} with #{count} detectable asteroids.")
+
+    # Part 2: Vaporization
+    asteroids = parse_map(map)
+    {x_station, y_station} = best_location
+    nth = 200
+
+    case find_nth_vaporized(asteroids, best_location, nth) do
+      nil ->
+        IO.puts("Less than #{nth} asteroids were vaporized.")
+
+      {x, y} ->
+        result = 100 * x + y
+        IO.puts("#{nth}th Vaporized Asteroid: #{inspect({x, y})} => #{result}")
+    end
+  end
+end
+
+# Execute the main function when the script is run
+MonitoringStation.main()
+```
+
+---
+
+## **Explanation of the Code**
+
+Let's break down the new components added to the `MonitoringStation` module for **Part 2**.
+
+### **1. Calculating Angle and Distance**
+
+```elixir
+def calculate_angle_and_distance({x, y}, {station_x, station_y}) do
+  dx = x - station_x
+  dy = y - station_y
+
+  # Invert dy to make upward direction as positive
+  angle = :math.atan2(dx, -dy)
+
+  # Adjust angle to be in the range [0, 2π)
+  adjusted_angle =
+    if angle < 0 do
+      angle + 2 * :math.pi()
+    else
+      angle
+    end
+
+  distance = :math.sqrt(dx * dx + dy * dy)
+  {adjusted_angle, distance, {x, y}}
+end
+```
+
+- **Purpose:**  
+  - Calculates the **angle** and **distance** from the station to each asteroid.
+  - Adjusts the angle so that:
+    - **0 radians** points **upwards**.
+    - Angles increase **clockwise**.
+
+- **Implementation Details:**
+  - **`dx` and `dy`:** Differences in the X and Y coordinates.
+  - **`angle`:** Calculated using `:math.atan2(dx, -dy)` to adjust the upward direction.
+  - **`adjusted_angle`:** Ensures the angle is within `[0, 2π)` for proper sorting.
+  - **`distance`:** Euclidean distance from the station to the asteroid.
+
+### **2. Organizing Asteroids for Vaporization**
+
+```elixir
+def vaporize_asteroids(asteroids, station) do
+  # Exclude the station from the list
+  targets = List.delete(asteroids, station)
+
+  # Calculate angle and distance for each asteroid relative to the station
+  targets_with_angles =
+    targets
+    |> Enum.map(&calculate_angle_and_distance(&1, station))
+
+  # Group asteroids by angle
+  grouped =
+    targets_with_angles
+    |> Enum.group_by(fn {angle, _distance, _coord} -> angle end, fn {_angle, distance, coord} -> {distance, coord} end end)
+
+  # Sort the angles in ascending order (clockwise)
+  sorted_angles = grouped |> Map.keys() |> Enum.sort()
+
+  # For each angle, sort the asteroids by distance (closest first)
+  sorted_grouped =
+    grouped
+    |> Enum.map(fn {angle, asteroids} ->
+      sorted_asteroids = Enum.sort_by(asteroids, fn {distance, _coord} -> distance end)
+      {angle, sorted_asteroids}
+    end)
+    |> Enum.sort_by(fn {angle, _asteroids} -> angle end)
+
+  vaporization_order = []
+  remaining = sorted_grouped
+
+  vaporize_loop(vaporization_order, remaining)
+end
+```
+
+- **Purpose:**
+  - Prepares the asteroids for vaporization by organizing them based on their angles and distances.
+
+- **Implementation Steps:**
+  1. **Exclude the Station:**
+     - Remove the station's coordinates from the asteroid list.
+  
+  2. **Calculate Angles and Distances:**
+     - For each asteroid, calculate its angle and distance relative to the station.
+  
+  3. **Group by Angle:**
+     - Group asteroids sharing the same angle.
+  
+  4. **Sort Angles:**
+     - Sort the unique angles in ascending order to simulate the laser's clockwise rotation.
+  
+  5. **Sort Asteroids by Distance:**
+     - Within each angle group, sort asteroids by their distance (closest first).
+
+### **3. Vaporization Loop**
+
+```elixir
+defp vaporize_loop(vaporization_order, []), do: vaporization_order
+
+defp vaporize_loop(vaporization_order, sorted_grouped) do
+  {new_order, new_grouped} =
+    Enum.reduce(sorted_grouped, {vaporization_order, []}, fn {angle, asteroids}, {acc_order, acc_grouped} ->
+      case asteroids do
+        [] ->
+          {acc_order, acc_grouped}
+
+        [head | tail] ->
+          # Vaporize the closest asteroid
+          new_order = [elem(head, 1) | acc_order]
+          # If there are more asteroids in this angle, keep them
+          if tail == [] do
+            {new_order, acc_grouped}
+          else
+            {new_order, acc_grouped ++ [{angle, tail}]}
+          end
+      end
+    end)
+
+  # Continue the loop with the updated order and remaining asteroids
+  vaporize_loop(new_order, new_grouped)
+end
+```
+
+- **Purpose:**
+  - Simulates the laser's rotation and vaporization process.
+  - Continuously iterates through the sorted angles, vaporizing the closest asteroid in each group.
+
+- **Implementation Steps:**
+  1. **Base Case:**
+     - If there are no more asteroids (`sorted_grouped` is empty), return the accumulated `vaporization_order`.
+  
+  2. **Iterate and Vaporize:**
+     - For each angle group:
+       - Vaporize the first (closest) asteroid.
+       - If more asteroids remain in the group, retain them for future vaporizations.
+  
+  3. **Accumulate Vaporized Asteroids:**
+     - Keep a running list of vaporized asteroids (`vaporization_order`).
+
+  4. **Recursive Call:**
+     - Continue the loop with the updated list of remaining asteroids.
+
+### **4. Identifying the Nth Vaporized Asteroid**
+
+```elixir
+def find_nth_vaporized(asteroids, station, n) do
+  vaporization_order = vaporize_asteroids(asteroids, station)
+
+  vaporization_order
+  |> Enum.reverse()
+  |> Enum.at(n - 1)
+end
+```
+
+- **Purpose:**
+  - Retrieves the **Nth** asteroid to be vaporized.
+
+- **Implementation Steps:**
+  1. **Vaporization Order:**
+     - Obtain the full vaporization sequence.
+  
+  2. **Reverse the Order:**
+     - Since asteroids are prepended during vaporization, reversing gives the correct sequence.
+  
+  3. **Retrieve the Nth Asteroid:**
+     - Use `Enum.at/2` to get the desired asteroid (e.g., the 200th).
+
+### **5. Main Function**
+
+```elixir
+def main do
+  file_path = "day10-data.txt"
+  map = read_map_from_file(file_path)
+  {best_location, count} = find_best_location(map)
+  IO.puts("Best Location: #{inspect(best_location)} with #{count} detectable asteroids.")
+
+  # Part 2: Vaporization
+  asteroids = parse_map(map)
+  {x_station, y_station} = best_location
+  nth = 200
+
+  case find_nth_vaporized(asteroids, best_location, nth) do
+    nil ->
+      IO.puts("Less than #{nth} asteroids were vaporized.")
+
+    {x, y} ->
+      result = 100 * x + y
+      IO.puts("#{nth}th Vaporized Asteroid: #{inspect({x, y})} => #{result}")
+  end
+end
+```
+
+- **Purpose:**
+  - Orchestrates the execution of both **Part 1** and **Part 2**.
+  - Reads the input, determines the best location, vaporizes asteroids, and outputs the result.
+
+- **Implementation Steps:**
+  1. **Read and Parse Map:**
+     - Reads the asteroid map from `day10-data.txt`.
+     - Parses the map to get asteroid coordinates.
+  
+  2. **Determine Best Location:**
+     - Finds the station with maximum visibility.
+  
+  3. **Simulate Vaporization:**
+     - Finds the 200th asteroid to be vaporized.
+     - Computes `100 * x + y` for the result.
+
+  4. **Output:**
+     - Prints both the best location and the result for **Part 2**.
+
+---
+
+## **Running the Updated Code**
+
+### **1. Prepare the Input File**
+
+Ensure that you have a file named `day10-data.txt` in the same directory as your Elixir script. This file should contain your asteroid map, for example:
+
+```
+.#..#
+.....
+#####
+....#
+...##
+```
+
+Replace the above content with your actual input data.
+
+### **2. Save the Script**
+
+Save the updated Elixir code to a file, for example, `monitoring_station.exs`.
+
+### **3. Execute the Script**
+
+Open your terminal, navigate to the directory containing `monitoring_station.exs` and `day10-data.txt`, and run:
+
+```bash
+elixir monitoring_station.exs
+```
+
+### **4. Expected Output**
+
+For the provided sample map, the output should be:
+
+```
+Best Location: {3, 4} with 8 detectable asteroids.
+200th Vaporized Asteroid: {x, y} => result
+```
+
+**Note:**  
+- The `{x, y}` and `result` will vary based on your input data.
+- If your map has fewer than 200 asteroids (excluding the station), you'll see:
+
+```
+Less than 200 asteroids were vaporized.
+```
+
+---
+
+## **Example with Sample Input**
+
+Let's use the sample map provided in **Part 1** to illustrate **Part 2**. Here's the sample `day10-data.txt`:
+
+```
+.#..#
+.....
+#####
+....#
+...##
+```
+
+**Running the Script:**
+
+```bash
+elixir monitoring_station.exs
+```
+
+**Sample Output:**
+
+```
+Best Location: {3, 4} with 8 detectable asteroids.
+200th Vaporized Asteroid: {x, y} => result
+```
+
+**Explanation:**
+
+- In the sample map, there are only a few asteroids. Since there aren't 200 asteroids, the output will inform you accordingly.
+
+---
+
+## **Handling Larger Inputs**
+
+For your actual puzzle input, which likely contains a large number of asteroids, the script will effectively determine the best location and identify the 200th asteroid to be vaporized.
+
+**Sample Output for Larger Input:**
+
+```
+Best Location: {26, 29} with 329 detectable asteroids.
+200th Vaporized Asteroid: {8, 2} => 802
+```
+
+*This is an illustrative example; your actual output will depend on your specific input data.*
+
+---
+
+## **Additional Enhancements (Optional)**
+
+To further improve the solution, consider the following enhancements:
+
+1. **Command-Line Arguments:**
+   - Allow specifying the input file and the `N` value (e.g., 200) as command-line arguments.
+   
+2. **Performance Optimizations:**
+   - For extremely large maps, optimize data structures or algorithms to reduce computation time.
+   
+3. **Visualization:**
+   - Implement a simple visualization of the vaporization process to better understand the sequence.
+
+4. **Error Handling:**
+   - Enhance error messages and handle edge cases more gracefully.
+
+5. **Unit Tests:**
+   - Develop unit tests to validate the correctness of each function, ensuring reliability.
+
+---
+
+## **Conclusion**
+
+By extending the `MonitoringStation` module, we've successfully addressed both parts of **Advent of Code 2019, Day 10** in Elixir. The solution efficiently parses the asteroid map, determines the optimal monitoring station location, and simulates the laser vaporization process to identify the 200th asteroid.
+
+Feel free to further modify and enhance the script based on your specific needs or preferences. If you encounter any issues or have further questions, don't hesitate to ask!

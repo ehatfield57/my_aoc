@@ -1,0 +1,300 @@
+Apologies for the confusion and any inconvenience caused by the initial code provided. You are correct; the code as it stands does not produce any output because the execution line is commented out. Additionally, upon closer inspection, there are some issues within the `Intcode` implementation that need to be addressed to ensure correct functionality.
+
+Let's address these issues step-by-step:
+
+1. **Uncommenting the Execution Line**: The line responsible for running the solution is commented out. To execute the program and see the output, you need to uncomment this line.
+
+2. **Fixing Parameter Modes in `get_params/5`**: The original implementation of `get_params/5` incorrectly determines the parameter modes. This needs to be corrected to accurately parse and apply parameter modes.
+
+3. **Correcting `parse_output/1` Function**: The `parse_output/1` function incorrectly patterns the output. It expects `[tile_id, y, x | rest]` but should be `[x, y, tile_id | rest]` based on how the Intcode program outputs data.
+
+4. **Enhancing the Intcode Implementation**: To ensure reliability and correctness, we'll refine the Intcode computer implementation.
+
+Below is the revised and corrected Elixir code that addresses these issues and includes the necessary output:
+
+### Corrected Elixir Code
+
+```elixir
+defmodule Intcode do
+  @moduledoc """
+  Intcode computer implementation for Advent of Code 2019.
+  """
+
+  def run(program, input \\ []) do
+    memory = initialize_memory(program)
+    execute(memory, 0, 0, input, [])
+  end
+
+  defp initialize_memory(program) do
+    # Initialize memory as a map for dynamic access
+    Enum.with_index(program)
+    |> Enum.reduce(%{}, fn {val, idx}, acc -> Map.put(acc, idx, val) end)
+  end
+
+  defp execute(memory, ip, relative_base, input, output) do
+    {opcode, modes} = parse_instruction(Map.get(memory, ip, 0))
+
+    case opcode do
+      1 ->  # Addition
+        {param1, param2, dest} = get_params(memory, ip, modes, relative_base, 3)
+        memory = Map.put(memory, dest, param1 + param2)
+        execute(memory, ip + 4, relative_base, input, output)
+
+      2 ->  # Multiplication
+        {param1, param2, dest} = get_params(memory, ip, modes, relative_base, 3)
+        memory = Map.put(memory, dest, param1 * param2)
+        execute(memory, ip + 4, relative_base, input, output)
+
+      3 ->  # Input
+        case input do
+          [in_val | rest_input] ->
+            dest = get_address(memory, ip + 1, Enum.at(modes, 0, 0), relative_base)
+            memory = Map.put(memory, dest, in_val)
+            execute(memory, ip + 2, relative_base, rest_input, output)
+          
+          [] ->
+            {:need_input, memory, ip, relative_base, output}
+        end
+
+      4 ->  # Output
+        {param, _} = get_params(memory, ip, modes, relative_base, 1)
+        execute(memory, ip + 2, relative_base, input, [param | output])
+
+      5 ->  # Jump-if-true
+        {param1, param2} = get_params(memory, ip, modes, relative_base, 2)
+        if param1 != 0 do
+          execute(memory, param2, relative_base, input, output)
+        else
+          execute(memory, ip + 3, relative_base, input, output)
+        end
+
+      6 ->  # Jump-if-false
+        {param1, param2} = get_params(memory, ip, modes, relative_base, 2)
+        if param1 == 0 do
+          execute(memory, param2, relative_base, input, output)
+        else
+          execute(memory, ip + 3, relative_base, input, output)
+        end
+
+      7 ->  # Less than
+        {param1, param2, dest} = get_params(memory, ip, modes, relative_base, 3)
+        memory = Map.put(memory, dest, if(param1 < param2, do: 1, else: 0))
+        execute(memory, ip + 4, relative_base, input, output)
+
+      8 ->  # Equals
+        {param1, param2, dest} = get_params(memory, ip, modes, relative_base, 3)
+        memory = Map.put(memory, dest, if(param1 == param2, do: 1, else: 0))
+        execute(memory, ip + 4, relative_base, input, output)
+
+      9 ->  # Adjust relative base
+        {param, _} = get_params(memory, ip, modes, relative_base, 1)
+        execute(memory, ip + 2, relative_base + param, input, output)
+
+      99 ->  # Halt
+        {:halt, Enum.reverse(output)}
+
+      _ ->
+        {:error, "Unknown opcode #{opcode} at position #{ip}"}
+    end
+  end
+
+  defp parse_instruction(instruction) do
+    opcode = rem(instruction, 100)
+    modes = instruction |> div(100) |> Integer.digits() |> Enum.reverse()
+    {opcode, modes}
+  end
+
+  defp get_params(memory, ip, modes, relative_base, count) do
+    params = Enum.map(1..count, fn i -> Map.get(memory, ip + i, 0) end)
+
+    Enum.with_index(params)
+    |> Enum.map(fn {param, idx} ->
+      mode = Enum.at(modes, idx, 0)
+
+      case mode do
+        0 ->  # Position mode
+          Map.get(memory, param, 0)
+        1 ->  # Immediate mode
+          param
+        2 ->  # Relative mode
+          Map.get(memory, relative_base + param, 0)
+        _ ->
+          raise "Unknown parameter mode: #{mode}"
+      end
+    end)
+    |> List.to_tuple()
+  end
+
+  defp get_address(memory, address, mode, relative_base) do
+    base = case mode do
+      0 -> 0
+      2 -> relative_base
+      _ -> raise "Unsupported mode for writing: #{mode}"
+    end
+
+    Map.get(memory, address, 0) + base
+  end
+end
+
+defmodule Day13Part1 do
+  @moduledoc """
+  Solution for Advent of Code 2019 Day 13 Part 1.
+  """
+
+  def run do
+    program = read_input("day13-data.txt")
+    {:halt, output} = Intcode.run(program)
+    tiles = parse_output(Enum.reverse(output))
+    block_tiles = Enum.count(tiles, fn {_x, _y, tile_id} -> tile_id == 2 end)
+    IO.puts("Number of block tiles: #{block_tiles}")
+  end
+
+  defp read_input(filename) do
+    {:ok, content} = File.read(filename)
+    content
+    |> String.trim()
+    |> String.split(",")
+    |> Enum.map(&String.to_integer/1)
+  end
+
+  defp parse_output([]), do: []
+  
+  defp parse_output([x, y, tile_id | rest]) do
+    [{x, y, tile_id} | parse_output(rest)]
+  end
+
+  defp parse_output(_), do: []
+end
+
+# To execute the solution, uncomment the following line:
+Day13Part1.run()
+```
+
+### Explanation of Corrections
+
+1. **Uncommenting the Execution Line**:
+   
+   - **Original Code**:
+     ```elixir
+     # Day13Part1.run()
+     ```
+   - **Corrected Code**:
+     ```elixir
+     Day13Part1.run()
+     ```
+     By removing the `#`, we ensure that the `run/0` function is executed when the script runs.
+
+2. **Fixing `get_params/5` Function**:
+
+   - **Issue**: The original implementation incorrectly fetched the parameter modes, leading to incorrect parameter interpretation.
+   
+   - **Correction**:
+     ```elixir
+     defp get_params(memory, ip, modes, relative_base, count) do
+       params = Enum.map(1..count, fn i -> Map.get(memory, ip + i, 0) end)
+
+       Enum.with_index(params)
+       |> Enum.map(fn {param, idx} ->
+         mode = Enum.at(modes, idx, 0)
+
+         case mode do
+           0 ->  # Position mode
+             Map.get(memory, param, 0)
+           1 ->  # Immediate mode
+             param
+           2 ->  # Relative mode
+             Map.get(memory, relative_base + param, 0)
+           _ ->
+             raise "Unknown parameter mode: #{mode}"
+         end
+       end)
+       |> List.to_tuple()
+     end
+     ```
+     - **Changes**:
+       - Correctly associates each parameter with its corresponding mode by using the index.
+       - Raises an error for unknown parameter modes to aid in debugging.
+
+3. **Correcting `parse_output/1` Function**:
+
+   - **Issue**: The original function pattern-matched `[tile_id, y, x | rest]`, which is incorrect. The Intcode program outputs data in the order `[x, y, tile_id]`.
+   
+   - **Correction**:
+     ```elixir
+     defp parse_output([x, y, tile_id | rest]) do
+       [{x, y, tile_id} | parse_output(rest)]
+     end
+     ```
+     This ensures that each set of three outputs is correctly interpreted as `(x, y, tile_id)`.
+
+4. **Enhancing the Intcode Implementation**:
+
+   - **Address Mode Handling**: The `get_address/4` function now correctly handles address modes for write operations, particularly the relative mode.
+   
+   - **Error Handling**: Added error raising for unsupported or unknown parameter modes to facilitate easier debugging.
+
+### How to Use the Corrected Code
+
+1. **Ensure Input File is Present**:
+   
+   - Place your `day13-data.txt` file in the same directory as your Elixir script. This file should contain the Intcode program as a comma-separated list of integers.
+
+2. **Run the Script**:
+
+   - Save the corrected code to a file, for example, `day13_part1.exs`.
+   
+   - Open your terminal and navigate to the directory containing `day13_part1.exs` and `day13-data.txt`.
+
+   - Execute the script using Elixir:
+     ```bash
+     elixir day13_part1.exs
+     ```
+   
+   - The program will output the number of block tiles present in the arcade game screen, for example:
+     ```
+     Number of block tiles: 123
+     ```
+
+### Additional Notes
+
+- **Intcode Computer**: The Intcode computer is a virtual machine used in several Advent of Code 2019 puzzles. It processes a list of integers (the program) as instructions, performing operations based on opcodes and parameter modes.
+
+- **Parameter Modes**:
+  - **Position Mode (0)**: The parameter is interpreted as a position in memory.
+  - **Immediate Mode (1)**: The parameter is treated as an immediate value.
+  - **Relative Mode (2)**: The parameter is interpreted relative to a `relative_base`, which can change during execution.
+
+- **Error Handling**: The corrected code now includes error messages for unknown opcodes and parameter modes, which can be invaluable for debugging complex Intcode programs.
+
+- **Extensibility**: This implementation can be extended or modified to handle additional parts of the Advent of Code challenges or to support more complex Intcode programs.
+
+### Testing the Solution
+
+To ensure that the solution works correctly, you can perform a simple test with a known Intcode program. For example, consider the following Intcode program that outputs the number `1` as a block tile:
+
+**Test Input (`day13-data.txt`)**:
+```
+104,1,104,2,104,2,104,2,99
+```
+**Explanation**:
+- `104,1`: Output `1` (x-coordinate)
+- `104,2`: Output `2` (y-coordinate)
+- `104,2`: Output `2` (tile_id)
+- `99`: Halt
+
+**Expected Output**:
+```
+Number of block tiles: 1
+```
+
+**Running the Test**:
+1. Update `day13-data.txt` with the test input.
+2. Run the script:
+   ```bash
+   elixir day13_part1.exs
+   ```
+3. Verify that the output matches the expected result.
+
+This test ensures that the program correctly interprets the output triplets and counts block tiles accurately.
+
+Feel free to reach out if you encounter any further issues or have additional questions!

@@ -1,0 +1,202 @@
+Thank you for pointing out the issue with the warnings and for providing additional requirements. Let's address both the warnings and the new specifications to ensure your Elixir script runs smoothly and meets your needs.
+
+## Summary of Changes
+
+1. **Remove `@doc` Attributes from Private Functions**: In Elixir, `@doc` attributes are intended for public functions. Applying them to private functions (`defp`) causes warnings because documentation for private functions is discarded. We'll remove these `@doc` annotations from private functions.
+
+2. **Read Input from `day08-data.txt`**: Instead of hardcoding the input within the script, we'll modify the program to read the puzzle input from a file named `day08-data.txt`.
+
+3. **Rename the Script to `day08.exs`**: We'll ensure the script is named `day08.exs` as per your request.
+
+4. **Provide Clear Instructions**: We'll include step-by-step instructions on how to set up and run the script.
+
+## Updated Elixir Script: `day08.exs`
+
+Below is the revised Elixir script that incorporates the necessary changes:
+
+```elixir
+defmodule Day08 do
+  @moduledoc """
+  Solution for Advent of Code 2019, Day 8, Part One.
+  """
+
+  @doc """
+  Main function to execute the solution.
+
+  ## Parameters
+  - `file_path`: The path to the input file containing the image data.
+  - `width`: The width of the image.
+  - `height`: The height of the image.
+
+  ## Example
+
+      iex> Day08.solve("day08-data.txt", 25, 6)
+      1234
+  """
+  def solve(file_path, width, height) do
+    input = read_input(file_path)
+    layers = parse_layers(input, width * height)
+
+    # Find the layer with the fewest number of '0' digits
+    layer_with_fewest_zeros =
+      layers
+      |> Enum.min_by(&count_digits(&1, "0"))
+
+    # Count the number of '1' and '2' digits in the selected layer
+    count_1 = count_digits(layer_with_fewest_zeros, "1")
+    count_2 = count_digits(layer_with_fewest_zeros, "2")
+
+    count_1 * count_2
+  end
+
+  @doc """
+  Reads the input from the specified file.
+
+  ## Parameters
+  - `file_path`: The path to the input file.
+
+  ## Returns
+  A string containing the image data.
+  """
+  def read_input(file_path) do
+    case File.read(file_path) do
+      {:ok, content} -> String.trim(content)
+      {:error, reason} -> 
+        IO.puts("Error reading file #{file_path}: #{reason}")
+        System.halt(1)
+    end
+  end
+
+  # Parses the input string into layers based on the specified layer size.
+  defp parse_layers(input, layer_size) do
+    input
+    |> String.graphemes()
+    |> Enum.chunk_every(layer_size)
+    |> Enum.map(&Enum.join/1)
+  end
+
+  # Counts the number of occurrences of a specific digit in a layer.
+  defp count_digits(layer, digit) do
+    layer
+    |> String.graphemes()
+    |> Enum.count(&(&1 == digit))
+  end
+end
+
+# Execute the solution when the script is run directly
+if __ENV__.file == __ENV__.file do
+  # Define the image dimensions
+  width = 25
+  height = 6
+
+  # Define the input file path
+  input_file = "day08-data.txt"
+
+  # Calculate the result
+  result = Day08.solve(input_file, width, height)
+
+  # Output the result
+  IO.puts("The result is: #{result}")
+end
+```
+
+### Explanation of Changes
+
+1. **Removed `@doc` from Private Functions**:
+   - The `@doc` attributes for `parse_layers/2` and `count_digits/2` have been removed since these functions are private (`defp`) and do not require documentation.
+
+2. **Reading Input from a File**:
+   - Added the `read_input/1` function to read the image data from `day08-data.txt`.
+   - The `solve/3` function now accepts `file_path` instead of directly taking the input string.
+
+3. **Script Execution**:
+   - The `if __ENV__.file == __ENV__.file do` condition ensures that the script executes the solution when run directly.
+   - Image dimensions (`width` and `height`) are set to typical values for Day 8 (e.g., `width = 25`, `height = 6`). Adjust these values if your specific puzzle uses different dimensions.
+
+4. **Error Handling**:
+   - The `read_input/1` function includes error handling to notify you if the input file cannot be read.
+
+## Setting Up Your Environment
+
+1. **Create the Script File**:
+   - Create a new file named `day08.exs` and paste the above Elixir code into it.
+
+2. **Prepare the Input File**:
+   - Create a file named `day08-data.txt` in the same directory as `day08.exs`.
+   - Paste your puzzle input (a continuous string of digits) into `day08-data.txt`. Ensure there are no extra spaces or newline characters unless they are part of the input.
+
+   **Example**:
+   ```plaintext
+   123456789012
+   ```
+
+3. **Adjust Image Dimensions (If Necessary)**:
+   - By default, the script uses `width = 25` and `height = 6`, which are common for Advent of Code Day 8.
+   - If your specific puzzle uses different dimensions, modify the `width` and `height` variables accordingly in the script.
+
+4. **Run the Script**:
+   - Open your terminal and navigate to the directory containing `day08.exs` and `day08-data.txt`.
+   - Execute the script using Elixir:
+
+     ```bash
+     elixir day08.exs
+     ```
+
+   - The script will read the input from `day08-data.txt`, process it, and output the result.
+
+   **Example Output**:
+   ```
+   The result is: 1
+   ```
+
+## Testing with the Provided Example
+
+To ensure everything is working correctly, let's test the script with the example you provided.
+
+1. **Set Up Example Input**:
+   - In `day08-data.txt`, insert the following input:
+     ```plaintext
+     123456789012
+     ```
+
+2. **Adjust Image Dimensions for the Example**:
+   - For the example, the image dimensions are `width = 3` and `height = 2`.
+   - Modify the `width` and `height` variables in the script accordingly:
+
+     ```elixir
+     width = 3
+     height = 2
+     ```
+
+3. **Run the Script**:
+   - Execute the script:
+
+     ```bash
+     elixir day08.exs
+     ```
+
+4. **Verify the Output**:
+   - The expected output is `1` based on the example.
+   - You should see:
+     ```
+     The result is: 1
+     ```
+
+5. **Revert to Puzzle Dimensions**:
+   - After testing, remember to set the `width` and `height` back to the puzzle's dimensions (e.g., `width = 25`, `height = 6`) before running it with your actual puzzle input.
+
+## Final Notes
+
+- **Ensuring Correct Input Format**: Make sure that `day08-data.txt` contains only the digits representing the image data without any unintended characters or spaces. Extra characters can lead to incorrect layer parsing.
+
+- **Performance Considerations**: Elixir is well-suited for handling large datasets efficiently. However, if you're working with extremely large input files, ensure your system has adequate resources.
+
+- **Extending the Solution**: This script addresses Part One of Day 8. For Part Two or other challenges, you can extend the `Day08` module with additional functions as needed.
+
+- **Error Handling**: The script includes basic error handling for file reading. You can enhance it further by adding validations for input length based on `width * height` or other constraints specific to the puzzle.
+
+## Conclusion
+
+The updated Elixir script `day08.exs` should now run without the previous warnings and meet your requirements by reading input from `day08-data.txt`. By following the provided instructions, you can efficiently solve **Advent of Code 2019, Day 8, Part One** and adapt the script for further challenges.
+
+If you encounter any further issues or have additional questions, feel free to ask. Happy coding and good luck with your Advent of Code challenges!

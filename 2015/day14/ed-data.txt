@@ -1,0 +1,1 @@
+Edward can fly 2 km/s for 2 seconds, but then must rest for 2 seconds.

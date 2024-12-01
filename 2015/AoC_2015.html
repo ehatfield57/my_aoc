@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<!-- saved from url=(0029)https://adventofcode.com/2015 -->
+<html lang="en-us"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Advent of Code 2015</title>
+<link rel="stylesheet" type="text/css" href="./AoC_2015_files/style.css">
+<link rel="stylesheet alternate" type="text/css" href="./AoC_2015_files/highcontrast.css" title="High Contrast">
+<link rel="shortcut icon" href="https://adventofcode.com/favicon.png">
+<script type="text/javascript" async="" src="./AoC_2015_files/js"></script><script async="" src="./AoC_2015_files/analytics.js"></script><script>window.addEventListener('click', function(e,s,r){if(e.target.nodeName==='CODE'&&e.detail===3){s=window.getSelection();s.removeAllRanges();r=document.createRange();r.selectNodeContents(e.target);s.addRange(r);}});</script>
+</head><!--
+
+
+
+
+Oh, hello!  Funny seeing you here.
+
+I appreciate your enthusiasm, but you aren't going to find much down here.
+There certainly aren't clues to any of the puzzles.  The best surprises don't
+even appear in the source until you unlock them for real.
+
+Please be careful with automated requests; I'm not a massive company, and I can
+only take so much traffic.  Please be considerate so that everyone gets to play.
+
+If you're curious about how Advent of Code works, it's running on some custom
+Perl code. Other than a few integrations (auth, analytics, social media), I
+built the whole thing myself, including the design, animations, prose, and all
+of the puzzles.
+
+The puzzles are most of the work; preparing a new calendar and a new set of
+puzzles each year takes all of my free time for 4-5 months. A lot of effort
+went into building this thing - I hope you're enjoying playing it as much as I
+enjoyed making it for you!
+
+If you'd like to hang out, I'm @ericwastl@hachyderm.io on Mastodon and
+@ericwastl on Twitter.
+
+- Eric Wastl
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-->
+<body>
+<header><div><h1 class="title-global"><a href="https://adventofcode.com/">Advent of Code</a></h1><nav><ul><li><a href="https://adventofcode.com/2015/about">[About]</a></li><li><a href="https://adventofcode.com/2015/events">[Events]</a></li><li><a href="https://teespring.com/stores/advent-of-code" target="_blank">[Shop]</a></li><li><a href="https://adventofcode.com/2015/settings">[Settings]</a></li><li><a href="https://adventofcode.com/2015/auth/logout">[Log Out]</a></li></ul></nav><div class="user">Edward Hatfield <a href="https://adventofcode.com/2015/support" class="supporter-badge" title="Advent of Code Supporter">(AoC++)</a> <span class="star-count">50*</span></div></div><div><h1 class="title-event">&nbsp;&nbsp;&nbsp;<span class="title-event-wrap">sub y{</span><a href="https://adventofcode.com/2015">2015</a><span class="title-event-wrap">}</span></h1><nav><ul><li><a href="https://adventofcode.com/2015">[Calendar]</a></li><li><a href="https://adventofcode.com/2015/support">[AoC++]</a></li><li><a href="https://adventofcode.com/2015/sponsors">[Sponsors]</a></li><li><a href="https://adventofcode.com/2015/leaderboard">[Leaderboard]</a></li><li><a href="https://adventofcode.com/2015/stats">[Stats]</a></li></ul></nav></div></header>
+
+<div id="sidebar">
+</div><!--/sidebar-->
+
+<main>
+<style>
+.calendar a.calendar-complete, .calendar a.calendar-verycomplete {
+  color: #009900;
+}
+.calendar a.calendar-day25.calendar-complete,
+.calendar a.calendar-day25.calendar-verycomplete{ color: #ffff66; }
+.calendar a.calendar-day25.calendar-verycomplete{ text-shadow: 0 0 5px #ffff66; }
+
+.calendar .calendar-trunk { color: #cccccc; }
+
+.calendar a                       .calendar-ornament0 { color: inherit; }
+.calendar a                       .calendar-ornament1 { color: inherit; }
+.calendar a                       .calendar-ornament2 { color: inherit; }
+.calendar a                       .calendar-ornament3 { color: inherit; }
+.calendar a.calendar-verycomplete .calendar-ornament0 { color: #0066ff; text-shadow: 0 0 5px #0066ff; }
+.calendar a.calendar-verycomplete .calendar-ornament1 { color: #ff9900; text-shadow: 0 0 5px #ff9900; }
+.calendar a.calendar-verycomplete .calendar-ornament2 { color: #ff0000; text-shadow: 0 0 5px #ff0000; }
+.calendar a.calendar-verycomplete .calendar-ornament3 { color: #ffff66; text-shadow: 0 0 5px #ffff66; }
+
+.calendar.calendar-beckon .calendar-day1  { animation: anim-beckon 3s infinite -2.875s; }
+.calendar.calendar-beckon .calendar-day2  { animation: anim-beckon 3s infinite -2.750s; }
+.calendar.calendar-beckon .calendar-day3  { animation: anim-beckon 3s infinite -2.625s; }
+.calendar.calendar-beckon .calendar-day4  { animation: anim-beckon 3s infinite -2.500s; }
+.calendar.calendar-beckon .calendar-day5  { animation: anim-beckon 3s infinite -2.375s; }
+.calendar.calendar-beckon .calendar-day6  { animation: anim-beckon 3s infinite -2.250s; }
+.calendar.calendar-beckon .calendar-day7  { animation: anim-beckon 3s infinite -2.125s; }
+.calendar.calendar-beckon .calendar-day8  { animation: anim-beckon 3s infinite -2.000s; }
+.calendar.calendar-beckon .calendar-day9  { animation: anim-beckon 3s infinite -1.875s; }
+.calendar.calendar-beckon .calendar-day10 { animation: anim-beckon 3s infinite -1.750s; }
+.calendar.calendar-beckon .calendar-day11 { animation: anim-beckon 3s infinite -1.625s; }
+.calendar.calendar-beckon .calendar-day12 { animation: anim-beckon 3s infinite -1.500s; }
+.calendar.calendar-beckon .calendar-day13 { animation: anim-beckon 3s infinite -1.375s; }
+.calendar.calendar-beckon .calendar-day14 { animation: anim-beckon 3s infinite -1.250s; }
+.calendar.calendar-beckon .calendar-day15 { animation: anim-beckon 3s infinite -1.125s; }
+.calendar.calendar-beckon .calendar-day16 { animation: anim-beckon 3s infinite -1.000s; }
+.calendar.calendar-beckon .calendar-day17 { animation: anim-beckon 3s infinite -0.875s; }
+.calendar.calendar-beckon .calendar-day18 { animation: anim-beckon 3s infinite -0.750s; }
+.calendar.calendar-beckon .calendar-day19 { animation: anim-beckon 3s infinite -0.625s; }
+.calendar.calendar-beckon .calendar-day20 { animation: anim-beckon 3s infinite -0.500s; }
+.calendar.calendar-beckon .calendar-day21 { animation: anim-beckon 3s infinite -0.375s; }
+.calendar.calendar-beckon .calendar-day22 { animation: anim-beckon 3s infinite -0.250s; }
+.calendar.calendar-beckon .calendar-day23 { animation: anim-beckon 3s infinite -0.125s; }
+.calendar.calendar-beckon .calendar-day24 { animation: anim-beckon 3s infinite -0.000s; }
+.calendar.calendar-beckon > span { animation-name: anim-beckon-dark ! important; }
+@keyframes anim-beckon {
+  0%   { color: #666666; }
+  80%  { color: #666666; }
+  90%  { color: #00ff00; }
+  100% { color: #666666; }
+}
+@keyframes anim-beckon-dark {
+  0%   { color: #333333; }
+  80%  { color: #333333; }
+  90%  { color: #009900; }
+  100% { color: #333333; }
+}
+
+.calendar-bkg {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  color: #ffffff;
+  cursor: default;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: -moz-none;
+  -o-user-select: none;
+  user-select: none;
+}
+.calendar-bkg div:nth-child(1) { opacity: .04; }
+.calendar-bkg div:nth-child(2) { opacity: .08; }
+.calendar-bkg div:nth-child(3) { opacity: .12; }
+.calendar-bkg div:nth-child(4) { opacity: .16; }
+.calendar-bkg div {
+  text-align: justify;
+  margin-bottom: -1.2em;
+}
+.calendar-bkg div::after {
+  content: "_";
+  display: inline-block;
+  visibility: hidden;
+  width: 100%;
+}
+.calendar .calendar-lightbeam { visibility: hidden; color: #666666; }
+.calendar a.calendar-complete .calendar-lightbeam,
+.calendar a.calendar-verycomplete .calendar-lightbeam { visibility: visible; }
+.calendar a.calendar-verycomplete .calendar-lightbeam { color: #ffff66; text-shadow: 0 0 5px #ffff66; }
+</style>
+<pre class="calendar calendar-perfect"><a aria-label="Day 25, two stars" href="https://adventofcode.com/2015/day/25" class="calendar-day25 calendar-verycomplete">                        <span class="calendar-lightbeam">|</span>                               
+                       <span class="calendar-lightbeam">\</span><span class="calendar-lightbeam">|</span><span class="calendar-lightbeam">/</span>                              
+                      <span class="calendar-lightbeam">-</span><span class="calendar-lightbeam">-</span>*<span class="calendar-lightbeam">-</span><span class="calendar-lightbeam">-</span>                        <span class="calendar-day">25</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 24, two stars" href="https://adventofcode.com/2015/day/24" class="calendar-day24 calendar-verycomplete">                       &gt;<span class="calendar-ornament1">o</span>&lt;                         <span class="calendar-day">24</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 23, two stars" href="https://adventofcode.com/2015/day/23" class="calendar-day23 calendar-verycomplete">                      &gt;&gt;<span class="calendar-ornament2">@</span>&lt;&lt;                        <span class="calendar-day">23</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 22, two stars" href="https://adventofcode.com/2015/day/22" class="calendar-day22 calendar-verycomplete">                     &gt;<span class="calendar-ornament3">*</span>&gt;&gt;<span class="calendar-ornament0">O</span>&lt;&lt;                       <span class="calendar-day">22</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 21, two stars" href="https://adventofcode.com/2015/day/21" class="calendar-day21 calendar-verycomplete">                    &gt;&gt;<span class="calendar-ornament2">@</span>&lt;&lt;&lt;<span class="calendar-ornament2">@</span>&lt;&lt;                      <span class="calendar-day">21</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 20, two stars" href="https://adventofcode.com/2015/day/20" class="calendar-day20 calendar-verycomplete">                   &gt;<span class="calendar-ornament1">o</span>&lt;&lt;<span class="calendar-ornament3">*</span>&gt;&gt;&gt;<span class="calendar-ornament1">o</span>&lt;&lt;                     <span class="calendar-day">20</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 19, two stars" href="https://adventofcode.com/2015/day/19" class="calendar-day19 calendar-verycomplete">                  &gt;<span class="calendar-ornament1">o</span>&lt;&lt;<span class="calendar-ornament3">*</span>&gt;<span class="calendar-ornament0">O</span>&lt;&lt;<span class="calendar-ornament2">@</span>&gt;<span class="calendar-ornament2">@</span>&lt;                    <span class="calendar-day">19</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 18, two stars" href="https://adventofcode.com/2015/day/18" class="calendar-day18 calendar-verycomplete">                 &gt;&gt;<span class="calendar-ornament1">o</span>&lt;&lt;<span class="calendar-ornament3">*</span>&gt;<span class="calendar-ornament1">o</span>&lt;<span class="calendar-ornament3">*</span>&gt;<span class="calendar-ornament2">@</span>&lt;&lt;&lt;                   <span class="calendar-day">18</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 17, two stars" href="https://adventofcode.com/2015/day/17" class="calendar-day17 calendar-verycomplete">                &gt;<span class="calendar-ornament2">@</span>&lt;&lt;&lt;<span class="calendar-ornament2">@</span>&gt;&gt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament1">o</span>&gt;&gt;<span class="calendar-ornament3">*</span>&lt;<span class="calendar-ornament1">o</span>&lt;                  <span class="calendar-day">17</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 16, two stars" href="https://adventofcode.com/2015/day/16" class="calendar-day16 calendar-verycomplete">               &gt;<span class="calendar-ornament0">O</span>&gt;&gt;&gt;<span class="calendar-ornament2">@</span>&lt;&lt;&lt;<span class="calendar-ornament1">o</span>&lt;<span class="calendar-ornament3">*</span>&gt;&gt;&gt;<span class="calendar-ornament0">O</span>&lt;<span class="calendar-ornament1">o</span>&lt;                 <span class="calendar-day">16</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 15, two stars" href="https://adventofcode.com/2015/day/15" class="calendar-day15 calendar-verycomplete">              &gt;&gt;<span class="calendar-ornament0">O</span>&lt;&lt;&lt;<span class="calendar-ornament3">*</span>&lt;<span class="calendar-ornament3">*</span>&gt;&gt;<span class="calendar-ornament1">o</span>&lt;&lt;<span class="calendar-ornament2">@</span>&gt;&gt;<span class="calendar-ornament2">@</span>&lt;&lt;&lt;                <span class="calendar-day">15</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 14, two stars" href="https://adventofcode.com/2015/day/14" class="calendar-day14 calendar-verycomplete">             &gt;&gt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament0">O</span>&gt;&gt;&gt;<span class="calendar-ornament2">@</span>&gt;&gt;<span class="calendar-ornament1">o</span>&lt;<span class="calendar-ornament3">*</span>&gt;&gt;<span class="calendar-ornament1">o</span>&lt;<span class="calendar-ornament0">O</span>&lt;&lt;<span class="calendar-ornament0">O</span>&lt;               <span class="calendar-day">14</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 13, two stars" href="https://adventofcode.com/2015/day/13" class="calendar-day13 calendar-verycomplete">            &gt;&gt;<span class="calendar-ornament0">O</span>&lt;<span class="calendar-ornament2">@</span>&gt;&gt;<span class="calendar-ornament0">O</span>&gt;&gt;<span class="calendar-ornament1">o</span>&lt;<span class="calendar-ornament2">@</span>&lt;&lt;<span class="calendar-ornament1">o</span>&lt;<span class="calendar-ornament3">*</span>&lt;<span class="calendar-ornament2">@</span>&gt;&gt;<span class="calendar-ornament1">o</span>&lt;&lt;              <span class="calendar-day">13</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 12, two stars" href="https://adventofcode.com/2015/day/12" class="calendar-day12 calendar-verycomplete">           &gt;&gt;<span class="calendar-ornament1">o</span>&lt;<span class="calendar-ornament0">O</span>&lt;<span class="calendar-ornament3">*</span>&lt;&lt;&lt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament0">O</span>&gt;&gt;&gt;<span class="calendar-ornament2">@</span>&gt;<span class="calendar-ornament3">*</span>&lt;&lt;&lt;<span class="calendar-ornament2">@</span>&lt;&lt;<span class="calendar-ornament1">o</span>&lt;             <span class="calendar-day">12</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 11, two stars" href="https://adventofcode.com/2015/day/11" class="calendar-day11 calendar-verycomplete">          &gt;&gt;<span class="calendar-ornament2">@</span>&gt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament0">O</span>&lt;&lt;&lt;<span class="calendar-ornament1">o</span>&lt;&lt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament1">o</span>&gt;<span class="calendar-ornament2">@</span>&lt;&lt;<span class="calendar-ornament2">@</span>&lt;&lt;&lt;<span class="calendar-ornament3">*</span>&gt;&gt;<span class="calendar-ornament2">@</span>&lt;            <span class="calendar-day">11</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 10, two stars" href="https://adventofcode.com/2015/day/10" class="calendar-day10 calendar-verycomplete">         &gt;<span class="calendar-ornament0">O</span>&lt;<span class="calendar-ornament0">O</span>&gt;&gt;<span class="calendar-ornament1">o</span>&lt;<span class="calendar-ornament1">o</span>&gt;&gt;<span class="calendar-ornament3">*</span>&gt;<span class="calendar-ornament1">o</span>&gt;&gt;&gt;<span class="calendar-ornament2">@</span>&lt;&lt;&lt;<span class="calendar-ornament1">o</span>&lt;&lt;<span class="calendar-ornament2">@</span>&gt;&gt;<span class="calendar-ornament3">*</span>&lt;&lt;&lt;           <span class="calendar-day">10</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 9, two stars" href="https://adventofcode.com/2015/day/9" class="calendar-day9 calendar-verycomplete">        &gt;&gt;<span class="calendar-ornament1">o</span>&gt;&gt;<span class="calendar-ornament1">o</span>&gt;<span class="calendar-ornament2">@</span>&lt;&lt;&lt;<span class="calendar-ornament0">O</span>&lt;&lt;<span class="calendar-ornament2">@</span>&lt;&lt;<span class="calendar-ornament1">o</span>&gt;<span class="calendar-ornament2">@</span>&lt;<span class="calendar-ornament1">o</span>&lt;&lt;&lt;<span class="calendar-ornament3">*</span>&gt;&gt;&gt;<span class="calendar-ornament1">o</span>&lt;&lt;&lt;          <span class="calendar-day"> 9</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 8, two stars" href="https://adventofcode.com/2015/day/8" class="calendar-day8 calendar-verycomplete">       &gt;<span class="calendar-ornament2">@</span>&lt;&lt;&lt;<span class="calendar-ornament0">O</span>&gt;&gt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament1">o</span>&lt;&lt;<span class="calendar-ornament1">o</span>&lt;<span class="calendar-ornament0">O</span>&gt;&gt;&gt;<span class="calendar-ornament2">@</span>&lt;<span class="calendar-ornament1">o</span>&lt;<span class="calendar-ornament2">@</span>&lt;<span class="calendar-ornament2">@</span>&gt;<span class="calendar-ornament3">*</span>&lt;<span class="calendar-ornament1">o</span>&gt;&gt;&gt;<span class="calendar-ornament2">@</span>&lt;         <span class="calendar-day"> 8</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 7, two stars" href="https://adventofcode.com/2015/day/7" class="calendar-day7 calendar-verycomplete">      &gt;&gt;<span class="calendar-ornament1">o</span>&gt;&gt;&gt;<span class="calendar-ornament2">@</span>&gt;&gt;&gt;<span class="calendar-ornament0">O</span>&lt;&lt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament0">O</span>&gt;&gt;<span class="calendar-ornament0">O</span>&gt;&gt;&gt;<span class="calendar-ornament2">@</span>&lt;<span class="calendar-ornament2">@</span>&lt;&lt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament0">O</span>&lt;<span class="calendar-ornament2">@</span>&gt;&gt;<span class="calendar-ornament0">O</span>&lt;&lt;        <span class="calendar-day"> 7</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 6, two stars" href="https://adventofcode.com/2015/day/6" class="calendar-day6 calendar-verycomplete">     &gt;<span class="calendar-ornament2">@</span>&gt;&gt;&gt;<span class="calendar-ornament1">o</span>&gt;&gt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament2">@</span>&gt;&gt;<span class="calendar-ornament1">o</span>&gt;&gt;&gt;<span class="calendar-ornament2">@</span>&gt;&gt;<span class="calendar-ornament1">o</span>&lt;<span class="calendar-ornament2">@</span>&lt;<span class="calendar-ornament0">O</span>&gt;&gt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament3">*</span>&lt;&lt;&lt;<span class="calendar-ornament1">o</span>&gt;&gt;&gt;<span class="calendar-ornament1">o</span>&lt;       <span class="calendar-day"> 6</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 5, two stars" href="https://adventofcode.com/2015/day/5" class="calendar-day5 calendar-verycomplete">    &gt;<span class="calendar-ornament0">O</span>&gt;&gt;&gt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament2">@</span>&lt;&lt;<span class="calendar-ornament1">o</span>&lt;&lt;&lt;<span class="calendar-ornament3">*</span>&lt;&lt;<span class="calendar-ornament1">o</span>&gt;&gt;<span class="calendar-ornament1">o</span>&gt;&gt;&gt;<span class="calendar-ornament3">*</span>&lt;&lt;&lt;<span class="calendar-ornament3">*</span>&gt;&gt;&gt;<span class="calendar-ornament3">*</span>&lt;<span class="calendar-ornament3">*</span>&lt;&lt;<span class="calendar-ornament2">@</span>&lt;&lt;&lt;      <span class="calendar-day"> 5</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 4, two stars" href="https://adventofcode.com/2015/day/4" class="calendar-day4 calendar-verycomplete">   &gt;<span class="calendar-ornament3">*</span>&gt;&gt;&gt;<span class="calendar-ornament1">o</span>&gt;&gt;&gt;<span class="calendar-ornament1">o</span>&gt;<span class="calendar-ornament0">O</span>&lt;&lt;&lt;<span class="calendar-ornament1">o</span>&lt;&lt;<span class="calendar-ornament1">o</span>&gt;<span class="calendar-ornament1">o</span>&gt;<span class="calendar-ornament1">o</span>&gt;&gt;<span class="calendar-ornament3">*</span>&lt;&lt;&lt;<span class="calendar-ornament1">o</span>&gt;<span class="calendar-ornament0">O</span>&gt;&gt;<span class="calendar-ornament1">o</span>&gt;&gt;<span class="calendar-ornament1">o</span>&gt;<span class="calendar-ornament0">O</span>&lt;&lt;&lt;     <span class="calendar-day"> 4</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 3, two stars" href="https://adventofcode.com/2015/day/3" class="calendar-day3 calendar-verycomplete">  &gt;<span class="calendar-ornament3">*</span>&lt;&lt;&lt;<span class="calendar-ornament0">O</span>&lt;&lt;<span class="calendar-ornament3">*</span>&lt;&lt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament3">*</span>&gt;&gt;<span class="calendar-ornament0">O</span>&lt;&lt;&lt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament2">@</span>&gt;&gt;<span class="calendar-ornament3">*</span>&lt;&lt;&lt;<span class="calendar-ornament1">o</span>&lt;<span class="calendar-ornament2">@</span>&lt;&lt;<span class="calendar-ornament3">*</span>&gt;&gt;<span class="calendar-ornament3">*</span>&lt;&lt;<span class="calendar-ornament3">*</span>&lt;&lt;    <span class="calendar-day"> 3</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 2, two stars" href="https://adventofcode.com/2015/day/2" class="calendar-day2 calendar-verycomplete"> &gt;<span class="calendar-ornament1">o</span>&gt;&gt;<span class="calendar-ornament1">o</span>&gt;&gt;<span class="calendar-ornament3">*</span>&gt;&gt;<span class="calendar-ornament2">@</span>&gt;&gt;&gt;<span class="calendar-ornament2">@</span>&gt;&gt;&gt;<span class="calendar-ornament3">*</span>&gt;<span class="calendar-ornament0">O</span>&lt;&lt;<span class="calendar-ornament3">*</span>&lt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament2">@</span>&lt;<span class="calendar-ornament3">*</span>&gt;&gt;&gt;<span class="calendar-ornament0">O</span>&lt;<span class="calendar-ornament1">o</span>&gt;&gt;&gt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament2">@</span>&lt;&lt;&lt;<span class="calendar-ornament1">o</span>&lt;   <span class="calendar-day"> 2</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 1, two stars" href="https://adventofcode.com/2015/day/1" class="calendar-day1 calendar-verycomplete">&gt;&gt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament1">o</span>&lt;&lt;&lt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament3">*</span>&gt;&gt;<span class="calendar-ornament3">*</span>&lt;&lt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament1">o</span>&gt;<span class="calendar-ornament3">*</span>&gt;<span class="calendar-ornament3">*</span>&gt;&gt;&gt;<span class="calendar-ornament3">*</span>&gt;<span class="calendar-ornament1">o</span>&gt;&gt;&gt;<span class="calendar-ornament3">*</span>&gt;&gt;&gt;<span class="calendar-ornament3">*</span>&gt;<span class="calendar-ornament0">O</span>&lt;&lt;&lt;<span class="calendar-ornament0">O</span>&gt;<span class="calendar-ornament3">*</span>&lt;&lt;&lt;&lt;  <span class="calendar-day"> 1</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<span class="calendar-trunk">                      |   |                             
+                      |   |                             
+           _  _ __ ___|___|___ __ _  _           </span>       
+</pre>
+<div class="calendar-bkg">
+<div>__ ___ _ _ __ ____ __ ___ _ ____ ___ _ ___</div>
+<div>_ __ _ _ __ __ _ _ _ _____ _ ___ ___ ____</div>
+<div>___ ____ _ __ _ ____ ____ _ _____ ___ _</div>
+<div>_ _ _ _ ____ ___ ____ _ __ __ ___ __ _ _</div>
+</div>
+
+<style>
+#caravan {
+  position: fixed;
+  left: -160px;
+  top: 7em;
+  animation: anim-caravan linear 20s infinite;
+  z-index: -1;
+}
+@keyframes anim-caravan {
+    0% { transform: translateX(0);     opacity: 1; }
+   95% { transform: translateX(96vw);  opacity: 1; }
+  100% { transform: translateX(100vw); opacity: 0; }
+}
+#caravan div {
+  position: absolute;
+  top: 0;
+  color: #aaaaaa;
+  animation: anim-reindeer ease 3.5s infinite;
+}
+@keyframes anim-reindeer {
+    0% { transform: translateY(0); }
+   50% { transform: translateY(5px); }
+  100% { transform: translateY(0); }
+}
+#caravan div:before {
+  content: "*";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 6pt;
+}
+#caravan div:after {
+  content: "*";
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  font-size: 5pt;
+}
+#caravan #sleigh:before {
+  content: "J";
+  transform: scaleX(-1) rotate(90deg);
+  font-size: 10pt;
+  color: #990000;
+  top: 2px;
+}
+#caravan #sleigh:after {
+  content: none;
+}
+#caravan #rudolph:before {
+  color: #ff0000;
+  left: 5px;
+  top: 5px;
+  text-shadow: 0 0 5px #ff0000, 0 0 5px #ff0000, 0 0 5px #ff0000, 0 0 5px #ff0000, 0 0 5px #ff0000, 0 0 5px #ff0000, 0 0 5px #ff0000;
+}
+#caravan #rudolph:after {
+  content: none;
+}
+</style>
+<div id="caravan">
+<div style="animation-delay:-0.0s; left:0px;" id="sleigh"></div>
+<div style="animation-delay:-0.5s; left:20px;"></div>
+<div style="animation-delay:-1.0s; left:40px;"></div>
+<div style="animation-delay:-1.5s; left:60px;"></div>
+<div style="animation-delay:-2.0s; left:80px;"></div>
+<div style="animation-delay:-2.5s; left:100px;"></div>
+<div style="animation-delay:-3.0s; left:120px;"></div>
+<div style="animation-delay:-3.5s; left:140px;" id="rudolph"></div>
+</div><style>
+.calendar-bkg {
+  background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,.3) 100%);
+}
+.sf {
+  position: fixed;
+  animation: anim-sf0 linear 20s infinite;
+  z-index: -1;
+}
+.sf:before {
+  content: "*";
+}
+.sf.sf0 { color: #ffffff; }
+.sf.sf1 { color: #cccccc; animation-name: anim-sf1; }
+.sf.sf2 { color: #999999; animation-name: anim-sf2; }
+.sf.sf3 { color: #666666; animation-name: anim-sf3; }
+@keyframes anim-sf0 {
+  0%   { transform: translate(  0,     0) rotate(0)     scale(1.0, 1.0); }
+  95%  { transform: translate(8em, 100vh) rotate(1turn) scale(1.0, 1.0); }
+  100% { transform: translate(8em, 100vh) rotate(1turn) scale(0.0, 0.0); }
+}
+@keyframes anim-sf1 {
+  0%   { transform: translate(  0,     0) rotate(0)     scale(1.0, 1.0); }
+  95%  { transform: translate(6em, 100vh) rotate(1turn) scale(1.0, 1.0); }
+  100% { transform: translate(6em, 100vh) rotate(1turn) scale(0.0, 0.0); }
+}
+@keyframes anim-sf2 {
+  0%   { transform: translate(  0,     0) rotate(0)     scale(1.0, 1.0); }
+  95%  { transform: translate(4em, 100vh) rotate(1turn) scale(1.0, 1.0); }
+  100% { transform: translate(4em, 100vh) rotate(1turn) scale(0.0, 0.0); }
+}
+@keyframes anim-sf3 {
+  0%   { transform: translate(  0,     0) rotate(0)     scale(1.0, 1.0); }
+  95%  { transform: translate(2em, 100vh) rotate(1turn) scale(1.0, 1.0); }
+  100% { transform: translate(2em, 100vh) rotate(1turn) scale(0.0, 0.0); }
+}
+</style>
+<div class="sf sf3" style="top:-4.73em; left:72.17vw; animation-delay:-6.74s;"></div><div class="sf sf1" style="top:-2.25em; left:76.15vw; animation-delay:-6.97s;"></div><div class="sf sf0" style="top:-1.35em; left:27.15vw; animation-delay:-4.99s;"></div><div class="sf sf2" style="top:-3.23em; left:48.57vw; animation-delay:-11.07s;"></div><div class="sf sf3" style="top:-4.14em; left:65.69vw; animation-delay:-11.41s;"></div><div class="sf sf3" style="top:-4.57em; left:41.54vw; animation-delay:-1.11s;"></div><div class="sf sf1" style="top:-2.69em; left:3.70vw; animation-delay:-8.72s;"></div><div class="sf sf3" style="top:-4.21em; left:16.79vw; animation-delay:-8.56s;"></div><div class="sf sf3" style="top:-4.93em; left:36.60vw; animation-delay:-6.16s;"></div><div class="sf sf3" style="top:-4.93em; left:68.75vw; animation-delay:-2.72s;"></div><div class="sf sf1" style="top:-2.08em; left:68.37vw; animation-delay:-6.74s;"></div><div class="sf sf3" style="top:-4.26em; left:55.97vw; animation-delay:-0.59s;"></div><div class="sf sf1" style="top:-2.18em; left:79.16vw; animation-delay:-19.52s;"></div><div class="sf sf0" style="top:-1.81em; left:65.56vw; animation-delay:-10.38s;"></div><div class="sf sf1" style="top:-2.88em; left:17.89vw; animation-delay:-2.19s;"></div><div class="sf sf3" style="top:-4.31em; left:11.44vw; animation-delay:-3.54s;"></div><div class="sf sf0" style="top:-1.18em; left:49.11vw; animation-delay:-1.90s;"></div><div class="sf sf0" style="top:-1.81em; left:79.76vw; animation-delay:-12.08s;"></div><div class="sf sf2" style="top:-3.95em; left:29.66vw; animation-delay:-8.06s;"></div><div class="sf sf1" style="top:-2.65em; left:49.32vw; animation-delay:-2.92s;"></div><div class="sf sf1" style="top:-2.86em; left:56.81vw; animation-delay:-0.07s;"></div><div class="sf sf1" style="top:-2.76em; left:25.97vw; animation-delay:-8.86s;"></div><div class="sf sf3" style="top:-4.43em; left:34.47vw; animation-delay:-4.79s;"></div><div class="sf sf1" style="top:-2.79em; left:72.60vw; animation-delay:-17.30s;"></div><div class="sf sf2" style="top:-3.45em; left:78.54vw; animation-delay:-14.09s;"></div><div class="sf sf2" style="top:-3.53em; left:21.05vw; animation-delay:-11.86s;"></div><div class="sf sf3" style="top:-4.70em; left:25.78vw; animation-delay:-11.02s;"></div><div class="sf sf2" style="top:-3.64em; left:23.57vw; animation-delay:-9.53s;"></div><div class="sf sf3" style="top:-4.71em; left:48.70vw; animation-delay:-14.61s;"></div><div class="sf sf0" style="top:-1.38em; left:84.22vw; animation-delay:-16.87s;"></div><div class="sf sf1" style="top:-2.37em; left:20.39vw; animation-delay:-18.19s;"></div><div class="sf sf3" style="top:-4.80em; left:30.59vw; animation-delay:-1.87s;"></div><div class="sf sf2" style="top:-3.96em; left:14.95vw; animation-delay:-3.50s;"></div><div class="sf sf0" style="top:-1.99em; left:72.37vw; animation-delay:-5.55s;"></div><div class="sf sf3" style="top:-4.26em; left:24.29vw; animation-delay:-4.15s;"></div><div class="sf sf1" style="top:-2.57em; left:46.62vw; animation-delay:-16.81s;"></div><div class="sf sf1" style="top:-2.55em; left:56.59vw; animation-delay:-5.59s;"></div><div class="sf sf1" style="top:-2.78em; left:79.41vw; animation-delay:-7.41s;"></div><div class="sf sf3" style="top:-4.59em; left:95.99vw; animation-delay:-6.27s;"></div><div class="sf sf0" style="top:-1.82em; left:75.06vw; animation-delay:-10.05s;"></div><div class="sf sf0" style="top:-1.57em; left:70.58vw; animation-delay:-4.52s;"></div><div class="sf sf3" style="top:-4.93em; left:32.39vw; animation-delay:-1.76s;"></div><div class="sf sf3" style="top:-4.83em; left:53.52vw; animation-delay:-19.48s;"></div><div class="sf sf2" style="top:-3.03em; left:12.76vw; animation-delay:-7.44s;"></div><div class="sf sf1" style="top:-2.13em; left:28.28vw; animation-delay:-0.52s;"></div><div class="sf sf3" style="top:-4.27em; left:90.86vw; animation-delay:-3.75s;"></div><div class="sf sf3" style="top:-4.04em; left:9.99vw; animation-delay:-9.52s;"></div><div class="sf sf0" style="top:-2.00em; left:63.30vw; animation-delay:-2.40s;"></div><div class="sf sf1" style="top:-2.24em; left:94.50vw; animation-delay:-13.00s;"></div><div class="sf sf1" style="top:-2.05em; left:59.65vw; animation-delay:-3.59s;"></div><div class="sf sf1" style="top:-2.64em; left:1.34vw; animation-delay:-16.89s;"></div><div class="sf sf0" style="top:-1.09em; left:37.81vw; animation-delay:-15.46s;"></div><div class="sf sf2" style="top:-3.20em; left:24.58vw; animation-delay:-15.94s;"></div><div class="sf sf2" style="top:-3.15em; left:39.15vw; animation-delay:-13.16s;"></div><div class="sf sf1" style="top:-2.83em; left:33.80vw; animation-delay:-11.79s;"></div><div class="sf sf1" style="top:-2.98em; left:64.03vw; animation-delay:-2.73s;"></div><div class="sf sf1" style="top:-2.23em; left:33.67vw; animation-delay:-18.82s;"></div><div class="sf sf2" style="top:-3.19em; left:95.62vw; animation-delay:-19.09s;"></div><div class="sf sf2" style="top:-3.17em; left:2.00vw; animation-delay:-5.62s;"></div><div class="sf sf3" style="top:-4.27em; left:23.34vw; animation-delay:-4.70s;"></div><div class="sf sf0" style="top:-1.45em; left:36.24vw; animation-delay:-11.12s;"></div><div class="sf sf1" style="top:-2.82em; left:83.18vw; animation-delay:-6.54s;"></div><div class="sf sf1" style="top:-2.07em; left:92.85vw; animation-delay:-9.18s;"></div><div class="sf sf2" style="top:-3.53em; left:93.94vw; animation-delay:-12.15s;"></div><div class="sf sf1" style="top:-2.59em; left:67.72vw; animation-delay:-13.21s;"></div><div class="sf sf3" style="top:-4.94em; left:12.58vw; animation-delay:-2.69s;"></div><div class="sf sf2" style="top:-3.12em; left:33.72vw; animation-delay:-13.18s;"></div><div class="sf sf2" style="top:-3.51em; left:52.47vw; animation-delay:-10.83s;"></div><div class="sf sf3" style="top:-4.06em; left:68.54vw; animation-delay:-1.51s;"></div><div class="sf sf2" style="top:-3.65em; left:55.71vw; animation-delay:-14.20s;"></div><div class="sf sf0" style="top:-1.63em; left:32.31vw; animation-delay:-11.32s;"></div><div class="sf sf3" style="top:-4.62em; left:44.67vw; animation-delay:-11.50s;"></div><div class="sf sf3" style="top:-4.25em; left:85.15vw; animation-delay:-0.87s;"></div><div class="sf sf1" style="top:-2.34em; left:58.72vw; animation-delay:-17.70s;"></div><div class="sf sf3" style="top:-4.71em; left:9.46vw; animation-delay:-11.40s;"></div><div class="sf sf0" style="top:-1.94em; left:49.89vw; animation-delay:-16.91s;"></div><div class="sf sf0" style="top:-1.08em; left:65.85vw; animation-delay:-1.99s;"></div><div class="sf sf2" style="top:-3.06em; left:74.92vw; animation-delay:-7.52s;"></div><div class="sf sf0" style="top:-1.67em; left:19.73vw; animation-delay:-4.81s;"></div><div class="sf sf2" style="top:-3.39em; left:37.66vw; animation-delay:-2.49s;"></div><div class="sf sf1" style="top:-2.36em; left:68.22vw; animation-delay:-6.82s;"></div><div class="sf sf3" style="top:-4.09em; left:33.02vw; animation-delay:-9.74s;"></div><div class="sf sf1" style="top:-2.89em; left:28.36vw; animation-delay:-9.83s;"></div><div class="sf sf1" style="top:-2.71em; left:83.42vw; animation-delay:-12.37s;"></div><div class="sf sf2" style="top:-3.32em; left:8.82vw; animation-delay:-9.86s;"></div><div class="sf sf3" style="top:-4.46em; left:4.41vw; animation-delay:-16.72s;"></div><div class="sf sf3" style="top:-4.08em; left:87.17vw; animation-delay:-9.03s;"></div><div class="sf sf0" style="top:-1.50em; left:19.35vw; animation-delay:-17.19s;"></div><div class="sf sf1" style="top:-2.37em; left:9.21vw; animation-delay:-8.08s;"></div><div class="sf sf1" style="top:-2.75em; left:87.31vw; animation-delay:-1.28s;"></div><div class="sf sf3" style="top:-4.79em; left:75.34vw; animation-delay:-6.37s;"></div><div class="sf sf0" style="top:-1.45em; left:24.72vw; animation-delay:-5.65s;"></div><div class="sf sf0" style="top:-1.18em; left:41.58vw; animation-delay:-17.62s;"></div><div class="sf sf0" style="top:-1.40em; left:89.26vw; animation-delay:-14.61s;"></div><div class="sf sf1" style="top:-2.58em; left:95.20vw; animation-delay:-14.11s;"></div><div class="sf sf2" style="top:-3.38em; left:69.27vw; animation-delay:-6.12s;"></div><div class="sf sf0" style="top:-1.26em; left:70.51vw; animation-delay:-19.98s;"></div><div class="sf sf3" style="top:-4.49em; left:68.13vw; animation-delay:-17.12s;"></div><div class="sf sf3" style="top:-4.07em; left:71.44vw; animation-delay:-5.19s;"></div><div class="sf sf3" style="top:-4.93em; left:41.61vw; animation-delay:-0.21s;"></div>
+</main>
+
+<!-- ga -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-69522494-1', 'auto');
+ga('set', 'anonymizeIp', true);
+ga('send', 'pageview');
+</script>
+<!-- /ga -->
+
+</body></html>

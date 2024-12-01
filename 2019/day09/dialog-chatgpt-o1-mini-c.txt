@@ -1,0 +1,377 @@
+You're welcome! I'm glad the solution for Part One worked for you. Let's move on to **Advent of Code 2019, Day 9, Part Two**.
+
+## **Advent of Code 2019, Day 9, Part Two**
+
+### **Problem Overview**
+
+**Day 9: Sensor Boost (Part Two)**
+
+- **Objective:** After successfully running the BOOST program in **sensor boost mode** (Part One) with input `1`, Part Two requires running the same program in **BOOST mode** with input `2`. The program will output the coordinates of the distress signal.
+  
+- **Intcode Computer:** Utilizes the same Intcode computer as Part One, which means it supports the relative base feature and the various opcodes introduced up to Day 9.
+
+### **Solution Approach**
+
+1. **Reuse the Intcode Computer Implementation:**
+   - Since Part Two uses the same Intcode computer, we'll reuse the `Intcode` module from Part One without modifications.
+
+2. **Adjust the Input:**
+   - For Part Two, the input to the Intcode program is `2` instead of `1`.
+
+3. **Capture the Output:**
+   - The program will output the coordinates of the distress signal. We'll capture and display this output.
+
+4. **File Naming:**
+   - **Data File:** `day09-data.txt`
+   - **Program File:** `day09.exs`
+
+### **Elixir Implementation**
+
+We'll build upon the previous solution for Part One by adding a new function for Part Two. Here's the complete Elixir code tailored for Part Two.
+
+#### **1. Ensure Your Data File is Named `day09-data.txt`**
+
+Make sure your Intcode program is saved in `day09-data.txt`. For example:
+
+```
+109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99
+```
+
+*Replace the above example with your actual Intcode program.*
+
+#### **2. Create or Update the Program File: `day09.exs`**
+
+Save the following Elixir code in a file named `day09.exs`:
+
+```elixir
+defmodule Intcode do
+  defstruct memory: %{}, pointer: 0, relative_base: 0, inputs: [], outputs: []
+
+  @opcode_params %{
+    1 => 3,
+    2 => 3,
+    3 => 1,
+    4 => 1,
+    5 => 2,
+    6 => 2,
+    7 => 3,
+    8 => 3,
+    9 => 1,
+    99 => 0
+  }
+
+  def run(program, inputs \\ []) do
+    memory = parse_program(program)
+    initial_state = %Intcode{memory: memory, inputs: inputs}
+    execute(initial_state)
+  end
+
+  defp parse_program(program) do
+    program
+    |> String.trim()
+    |> String.split(",", trim: true)
+    |> Enum.with_index()
+    |> Enum.reduce(%{}, fn {value, index}, acc ->
+      Map.put(acc, index, String.to_integer(value))
+    end)
+  end
+
+  defp execute(state = %Intcode{pointer: pointer, memory: memory}) do
+    {opcode, modes} = parse_instruction(Map.get(memory, pointer, 0))
+
+    cond do
+      opcode == 99 ->
+        state.outputs
+
+      true ->
+        {state, new_pointer} = execute_opcode(state, opcode, modes)
+        execute(%{state | pointer: new_pointer})
+    end
+  end
+
+  defp parse_instruction(instruction) do
+    opcode = rem(instruction, 100)
+    modes = div(instruction, 100)
+    {opcode, modes}
+  end
+
+  defp get_param(state, offset, mode) do
+    val = Map.get(state.memory, state.pointer + offset, 0)
+
+    case mode do
+      0 -> Map.get(state.memory, val, 0) # Position mode
+      1 -> val                          # Immediate mode
+      2 -> Map.get(state.memory, state.relative_base + val, 0) # Relative mode
+    end
+  end
+
+  defp get_write_address(state, offset, mode) do
+    val = Map.get(state.memory, state.pointer + offset, 0)
+
+    case mode do
+      0 -> val
+      2 -> state.relative_base + val
+      _ -> raise "Invalid mode for write address: #{mode}"
+    end
+  end
+
+  defp execute_opcode(state, opcode, modes) do
+    params = @opcode_params[opcode]
+    mode_list = for i <- 0..(params - 1), do: rem(div(modes, :math.pow(10, i) |> trunc), 10)
+
+    case opcode do
+      1 -> # Add
+        param1 = get_param(state, 1, Enum.at(mode_list, 0))
+        param2 = get_param(state, 2, Enum.at(mode_list, 1))
+        addr = get_write_address(state, 3, Enum.at(mode_list, 2))
+        new_memory = Map.put(state.memory, addr, param1 + param2)
+        { %{state | memory: new_memory}, state.pointer + 4 }
+
+      2 -> # Multiply
+        param1 = get_param(state, 1, Enum.at(mode_list, 0))
+        param2 = get_param(state, 2, Enum.at(mode_list, 1))
+        addr = get_write_address(state, 3, Enum.at(mode_list, 2))
+        new_memory = Map.put(state.memory, addr, param1 * param2)
+        { %{state | memory: new_memory}, state.pointer + 4 }
+
+      3 -> # Input
+        case state.inputs do
+          [input | rest] ->
+            addr = get_write_address(state, 1, Enum.at(mode_list, 0))
+            new_memory = Map.put(state.memory, addr, input)
+            { %{state | memory: new_memory, inputs: rest }, state.pointer + 2 }
+
+          [] ->
+            raise "No input available for opcode 3"
+        end
+
+      4 -> # Output
+        param = get_param(state, 1, Enum.at(mode_list, 0))
+        new_outputs = state.outputs ++ [param]
+        { %{state | outputs: new_outputs }, state.pointer + 2 }
+
+      5 -> # Jump-if-true
+        param1 = get_param(state, 1, Enum.at(mode_list, 0))
+        param2 = get_param(state, 2, Enum.at(mode_list, 1))
+        if param1 != 0 do
+          {state, param2}
+        else
+          {state, state.pointer + 3}
+        end
+
+      6 -> # Jump-if-false
+        param1 = get_param(state, 1, Enum.at(mode_list, 0))
+        param2 = get_param(state, 2, Enum.at(mode_list, 1))
+        if param1 == 0 do
+          {state, param2}
+        else
+          {state, state.pointer + 3}
+        end
+
+      7 -> # Less than
+        param1 = get_param(state, 1, Enum.at(mode_list, 0))
+        param2 = get_param(state, 2, Enum.at(mode_list, 1))
+        addr = get_write_address(state, 3, Enum.at(mode_list, 2))
+        value = if param1 < param2, do: 1, else: 0
+        new_memory = Map.put(state.memory, addr, value)
+        { %{state | memory: new_memory }, state.pointer + 4 }
+
+      8 -> # Equals
+        param1 = get_param(state, 1, Enum.at(mode_list, 0))
+        param2 = get_param(state, 2, Enum.at(mode_list, 1))
+        addr = get_write_address(state, 3, Enum.at(mode_list, 2))
+        value = if param1 == param2, do: 1, else: 0
+        new_memory = Map.put(state.memory, addr, value)
+        { %{state | memory: new_memory }, state.pointer + 4 }
+
+      9 -> # Adjust relative base
+        param1 = get_param(state, 1, Enum.at(mode_list, 0))
+        new_relative_base = state.relative_base + param1
+        { %{state | relative_base: new_relative_base }, state.pointer + 2 }
+
+      _ ->
+        raise "Unknown opcode: #{opcode}"
+    end
+  end
+end
+
+defmodule AdventOfCode do
+  def part_one(input) do
+    Intcode.run(input, [1])
+    |> List.last()
+  end
+
+  def part_two(input) do
+    Intcode.run(input, [2])
+    |> List.last()
+  end
+end
+
+defmodule Solution do
+  def run_part_two do
+    # Read the Intcode program from 'day09-data.txt'
+    input =
+      "day09-data.txt"
+      |> File.read!()
+      |> String.trim()
+
+    # Execute the Intcode program with input [2] for Part Two
+    output = AdventOfCode.part_two(input)
+
+    # Print the coordinates of the distress signal
+    IO.puts("Distress signal coordinates: #{output}")
+  end
+end
+
+# Automatically run Part Two when executing the script
+Solution.run_part_two()
+```
+
+#### **3. Running the Solution**
+
+Follow these steps to execute the solution for Part Two and obtain the distress signal coordinates.
+
+1. **Ensure Elixir is Installed:**
+
+   Make sure you have Elixir installed on your system. You can verify this by running:
+
+   ```bash
+   elixir --version
+   ```
+
+   If Elixir is not installed, you can download it from [Elixir's official website](https://elixir-lang.org/install.html) or use a package manager appropriate for your operating system.
+
+2. **Prepare the Files:**
+
+   - **`day09-data.txt`:** Place your Intcode program in this file. Ensure it's a single line of comma-separated integers without any extra spaces or lines.
+
+   - **`day09.exs`:** Save the provided Elixir script in this file.
+
+   Ensure both files are in the same directory for simplicity.
+
+3. **Execute the Script:**
+
+   Open your terminal, navigate to the directory containing the files, and run:
+
+   ```bash
+   elixir day09.exs
+   ```
+
+   Upon execution, the program will:
+
+   - Read the Intcode program from `day09-data.txt`.
+   - Execute it with an input value of `2`.
+   - Print the coordinates of the distress signal.
+
+   The output should look like:
+
+   ```
+   Distress signal coordinates: <YOUR_COORDINATES>
+   ```
+
+   Replace `<YOUR_COORDINATES>` with the actual numeric output produced by the Intcode program.
+
+### **Understanding the Updated Code**
+
+- **Intcode Module:**
+  
+  - **`run/2`:** Initializes and runs the Intcode computer with the provided program and inputs.
+  
+  - **`part_one/1` and `part_two/1`:** Functions to execute Part One and Part Two respectively. The only difference is the input value (`1` for Part One and `2` for Part Two).
+
+- **AdventOfCode Module:**
+  
+  - **`part_one/1`:** Runs the Intcode program with input `[1]` and returns the last output (BOOST keycode).
+
+  - **`part_two/1`:** Runs the Intcode program with input `[2]` and returns the last output (coordinates of the distress signal).
+
+- **Solution Module:**
+  
+  - **`run_part_two/0`:** Orchestrates reading the input file, executing Part Two, and printing the result.
+
+  - **`Solution.run_part_two()`:** Automatically invokes the `run_part_two` function when the script is executed.
+
+### **Optional: Running Both Parts in a Single Script**
+
+If you'd like to have the flexibility to run both Part One and Part Two within the same script, you can modify the `Solution` module to accept command-line arguments. Here's how you can do it:
+
+1. **Update `day09.exs`:**
+
+   ```elixir
+   defmodule Solution do
+     def run_part(part) do
+       # Read the Intcode program from 'day09-data.txt'
+       input =
+         "day09-data.txt"
+         |> File.read!()
+         |> String.trim()
+
+       output =
+         case part do
+           :part_one -> AdventOfCode.part_one(input)
+           :part_two -> AdventOfCode.part_two(input)
+           _ -> raise "Unknown part specified. Use :part_one or :part_two."
+         end
+
+       message =
+         case part do
+           :part_one -> "BOOST keycode: #{output}"
+           :part_two -> "Distress signal coordinates: #{output}"
+         end
+
+       IO.puts(message)
+     end
+
+     def run do
+       case System.argv() do
+         ["part1"] ->
+           run_part(:part_one)
+
+         ["part2"] ->
+           run_part(:part_two)
+
+         _ ->
+           IO.puts("Usage: elixir day09.exs part1|part2")
+       end
+     end
+   end
+
+   # Automatically run based on command-line arguments
+   Solution.run()
+   ```
+
+2. **Running the Script:**
+
+   - **For Part One:**
+
+     ```bash
+     elixir day09.exs part1
+     ```
+
+     Output:
+
+     ```
+     BOOST keycode: <YOUR_BOOST_KEYCODE>
+     ```
+
+   - **For Part Two:**
+
+     ```bash
+     elixir day09.exs part2
+     ```
+
+     Output:
+
+     ```
+     Distress signal coordinates: <YOUR_COORDINATES>
+     ```
+
+   This modification allows you to choose which part to run by specifying `part1` or `part2` as a command-line argument.
+
+### **Conclusion**
+
+With this updated Elixir script, you can now solve both Part One and Part Two of **Advent of Code 2019, Day 9** by providing the appropriate input value (`1` for Part One and `2` for Part Two). The script reads your Intcode program from `day09-data.txt`, executes it with the specified input, and prints the resulting output.
+
+Feel free to use the optional modification to handle both parts within a single script by using command-line arguments. This can streamline your workflow, especially if you plan to solve multiple parts or similar problems in the future.
+
+If you encounter any issues or have further questions, don't hesitate to ask. Happy coding and good luck with Advent of Code!

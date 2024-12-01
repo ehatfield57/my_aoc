@@ -1,0 +1,40 @@
+winner: player, min_cost: 1774, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Recharge']
+winner: player, min_cost: 1618, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Drain']
+winner: player, min_cost: 1598, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Magic Missile']
+winner: player, min_cost: 1578, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Drain', 'Drain']
+winner: player, min_cost: 1558, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Drain', 'Magic Missile']
+winner: player, min_cost: 1538, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Magic Missile', 'Magic Missile']
+winner: player, min_cost: 1471, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Recharge', 'Magic Missile', 'Magic Missile', 'Magic Missile', 'Magic Missile']
+winner: player, min_cost: 1462, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Drain', 'Poison', 'Shield', 'Drain']
+winner: player, min_cost: 1442, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Drain', 'Poison', 'Shield', 'Magic Missile']
+winner: player, min_cost: 1422, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Drain', 'Poison', 'Drain', 'Drain']
+winner: player, min_cost: 1402, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Drain', 'Poison', 'Drain', 'Magic Missile']
+winner: player, min_cost: 1329, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Drain', 'Poison', 'Magic Missile']
+winner: player, min_cost: 1315, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Drain', 'Magic Missile', 'Magic Missile', 'Magic Missile', 'Magic Missile']
+winner: player, min_cost: 1309, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Magic Missile', 'Poison', 'Magic Missile']
+winner: player, min_cost: 1242, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Magic Missile', 'Magic Missile', 'Magic Missile', 'Magic Missile']
+winner: player, min_cost: 993, actions: ['Recharge', 'Poison', 'Shield', 'Drain', 'Poison', 'Drain', 'Magic Missile', 'Magic Missile', 'Magic Missile']
+winner: player, min_cost: 973, actions: ['Recharge', 'Poison', 'Shield', 'Drain', 'Poison', 'Magic Missile', 'Magic Missile', 'Magic Missile', 'Magic Missile']
+
+winner: player, min_cost: 900, actions:
+ => ['Recharge', 'Poison', 'Shield', 'Magic Missile', 'Poison', 'Magic Missile', 'Magic Missile', 'Magic Missile']
+
+winner: player, min_cost: 1774, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Recharge']
+winner: player, min_cost: 1618, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Drain']
+winner: player, min_cost: 1598, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Magic Missile']
+winner: player, min_cost: 1578, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Drain', 'Drain']
+winner: player, min_cost: 1558, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Drain', 'Magic Missile']
+winner: player, min_cost: 1538, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Magic Missile', 'Magic Missile']
+winner: player, min_cost: 1462, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Drain', 'Poison', 'Shield', 'Drain']
+winner: player, min_cost: 1442, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Drain', 'Poison', 'Shield', 'Magic Missile']
+winner: player, min_cost: 1422, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Drain', 'Poison', 'Drain', 'Drain']
+winner: player, min_cost: 1402, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Drain', 'Poison', 'Drain', 'Magic Missile']
+winner: player, min_cost: 1329, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Drain', 'Poison', 'Magic Missile']
+winner: player, min_cost: 1309, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Magic Missile', 'Poison', 'Magic Missile']
+winner: player, min_cost: 1242, actions: ['Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Magic Missile', 'Magic Missile', 'Magic Missile', 'Magic Missile']
+
+winner: player, min_cost: 1216, actions:
+ => ['Poison', 'Recharge', 'Shield', 'Poison', 'Recharge', 'Drain', 'Poison', 'Magic Missile']
+
+part a: 900
+part b: 1216

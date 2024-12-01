@@ -1,0 +1,15 @@
+digraph G {
+	node0 [label="a"];
+	node1 [label="A"];
+	node2 [label="b"];
+	node3 [label="@"];
+	subgraph U {
+		edge [dir=none];
+		node0 -> node3 [label="2"];
+		node0 -> node1 [label="4"];
+		node1 -> node2 [label="2"];
+		node1 -> node3 [label="2"];
+	}
+	subgraph D {
+	}
+}

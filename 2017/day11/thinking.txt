@@ -1,0 +1,28 @@
+
+1643 n  ->  288 n
+1355 s
+
+1262 ne
+1411 sw ->  149 sw
+
+1481 nw ->  410 nw
+1071 se
+
+   q    r    s
+ ---  ---  ---
+   0    0    0  <- Origin
+   0 -288  288  <- 288 n
+ 149 -437  288  <- 149 sw
+-261 -437  698  <- 410 nw  <-- Part One Answer
+
+
+   1 Child currently 0 steps away.
+   7 Child currently 1 steps away.
+   8 Child currently 2 steps away.
+...
+  10 Child currently 1431 steps away.
+  24 Child currently 1432 steps away.
+  30 Child currently 1433 steps away.
+  27 Child currently 1434 steps away.
+  10 Child currently 1435 steps away. <-- Part Two Answer
+

@@ -1,0 +1,31 @@
+
+Unique numbers: 2, name: qibuqqg, weight: 34, parent: , weights: (
+  (cctmov .  114292)
+  (dwggjb .  114299) *
+  (nidfqb .  114292)
+  (nxgtet .  114292)
+  (oxxhpbs . 114292)
+  (tiekffc . 114292)
+  (wpwznmz . 114292)
+), total: 518094
+
+Unique numbers: 2, name: dwggjb, weight: 89458, parent: qibuqqg, weights: (
+  (ikplxqu . 8278)
+  (wacoc .   8278)
+  (wknuyhc . 8285) *
+), total: 94669
+
+Unique numbers: 2, name: wknuyhc, weight: 78, parent: dwggjb, weights: (
+  (alfjsh .  1640)
+  (egbzge .  1647) *
+  (mhbquyl . 1640)
+  (pxfelm .  1640)
+  (xznmwt .  1640)
+), total: 4403
+
+Unique numbers: 1, name: egbzge, weight: 1086, parent: wknuyhc, weights: (
+  (gokeude . 187)
+  (qqouxxb . 187)
+  (tmgvgbg . 187)
+), total: 1233
+

@@ -1,0 +1,163 @@
+Good morning! I'd be happy to help you solve **Advent of Code 2019, Day 8, Part One** using Elixir. Below is a complete solution with explanations to guide you through the process.
+
+## Problem Overview
+
+**Space Image Format** is a simple image format where the image is divided into layers. Each layer is a sequence of digits representing pixel values. Given the image's width and height, you can determine how to split the input data into layers.
+
+**Part One** requires you to:
+1. Parse the input data into layers based on the given width and height.
+2. Find the layer with the fewest number of `0` digits.
+3. In that layer, count the number of `1` digits and `2` digits.
+4. Multiply the count of `1` digits by the count of `2` digits to get the final result.
+
+## Elixir Solution
+
+Below is the Elixir code that accomplishes the above steps. The solution includes detailed comments for clarity.
+
+```elixir
+defmodule AdventOfCode2019Day8 do
+  @moduledoc """
+  Solution for Advent of Code 2019, Day 8, Part One.
+  """
+
+  @doc """
+  Main function to execute the solution.
+
+  ## Parameters
+  - `input`: A string of digits representing the image data.
+  - `width`: The width of the image.
+  - `height`: The height of the image.
+
+  ## Example
+
+      iex> input = "123456789012"
+      iex> AdventOfCode2019Day8.solve(input, 3, 2)
+      1
+
+  """
+  def solve(input, width, height) do
+    layers = parse_layers(input, width * height)
+
+    # Find the layer with the fewest number of '0' digits
+    layer_with_fewest_zeros =
+      layers
+      |> Enum.min_by(fn layer ->
+        count_digits(layer, "0")
+      end)
+
+    # Count the number of '1' and '2' digits in the selected layer
+    count_1 = count_digits(layer_with_fewest_zeros, "1")
+    count_2 = count_digits(layer_with_fewest_zeros, "2")
+
+    count_1 * count_2
+  end
+
+  @doc """
+  Parses the input string into layers based on the specified layer size.
+
+  ## Parameters
+  - `input`: The input string containing all the digits.
+  - `layer_size`: The number of digits per layer.
+
+  ## Returns
+  A list of strings, each representing a layer.
+  """
+  defp parse_layers(input, layer_size) do
+    input
+    |> String.trim()
+    |> String.graphemes()
+    |> Enum.chunk_every(layer_size)
+    |> Enum.map(&Enum.join/1)
+  end
+
+  @doc """
+  Counts the number of occurrences of a specific digit in a layer.
+
+  ## Parameters
+  - `layer`: A string representing a single layer.
+  - `digit`: The digit to count as a string.
+
+  ## Returns
+  The count of the specified digit in the layer.
+  """
+  defp count_digits(layer, digit) do
+    layer
+    |> String.graphemes()
+    |> Enum.count(&(&1 == digit))
+  end
+end
+
+# To run the solution, you can use the following code.
+# Replace `your_input_string` with your actual input.
+
+if __ENV__.file == __ENV__.file do
+  # Example usage:
+  # You can replace this input with your actual puzzle input.
+  input = "123456789012"
+
+  # Define the image dimensions
+  width = 3
+  height = 2
+
+  result = AdventOfCode2019Day8.solve(input, width, height)
+  IO.puts("The result is: #{result}")
+end
+```
+
+## How to Use the Code
+
+1. **Save the Code**: Save the above code to a file named `advent_of_code_2019_day8.exs`.
+
+2. **Prepare Your Input**: Replace the `input` variable's value with your actual puzzle input. Ensure it's a continuous string of digits without any separators.
+
+3. **Set Image Dimensions**: Update the `width` and `height` variables with the dimensions specified in the puzzle. For Day 8, Part One, the typical dimensions are often provided in the problem description (e.g., width = 25, height = 6).
+
+4. **Run the Script**: Execute the script using Elixir. Open your terminal and navigate to the directory containing the script, then run:
+
+    ```bash
+    elixir advent_of_code_2019_day8.exs
+    ```
+
+    This will output the result to the terminal.
+
+## Example
+
+Using the provided example in the problem description:
+
+- **Input**: `"123456789012"`
+- **Width**: `3`
+- **Height**: `2`
+
+**Execution**:
+
+```bash
+elixir advent_of_code_2019_day8.exs
+```
+
+**Output**:
+
+```
+The result is: 1
+```
+
+This matches the expected result based on the example.
+
+## Explanation of the Code
+
+1. **Parsing Layers**:
+    - The `parse_layers/2` function splits the input string into chunks where each chunk represents a layer. It uses the `width * height` to determine the size of each layer.
+
+2. **Finding the Layer with Fewest Zeros**:
+    - Using `Enum.min_by/2`, the code iterates through each layer to find the one with the smallest count of `'0'` digits.
+
+3. **Counting Digits**:
+    - The `count_digits/2` function counts how many times a specific digit appears in a layer.
+
+4. **Calculating the Final Result**:
+    - Once the correct layer is identified, the number of `'1'` and `'2'` digits are counted, and their product is computed to get the final answer.
+
+## Conclusion
+
+This Elixir solution efficiently solves **Advent of Code 2019, Day 8, Part One** by breaking down the problem into manageable functions. You can easily adapt and expand this code for Part Two or similar challenges by modifying the parsing and counting logic as needed.
+
+Happy coding and good luck with your Advent of Code challenges!

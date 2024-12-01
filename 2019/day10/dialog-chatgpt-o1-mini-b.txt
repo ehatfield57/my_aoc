@@ -1,0 +1,201 @@
+Certainly! Let's enhance the previous Elixir solution to **read the asteroid map from a file named `day10-data.txt`** instead of using a hardcoded string. This approach makes the solution more flexible and suitable for larger or different inputs.
+
+### **Updated Solution Overview**
+
+1. **Read Input from File:** Modify the code to read the asteroid map from `day10-data.txt`.
+2. **Handle File Reading Errors:** Ensure the program gracefully handles scenarios where the file might not exist or cannot be read.
+3. **Maintain Existing Functionality:** Keep the parsing, visibility calculation, and best location determination as previously implemented.
+
+### **Step-by-Step Implementation**
+
+#### 1. **Prepare the Input File**
+
+- **Create `day10-data.txt`:** Ensure that you have a file named `day10-data.txt` in the same directory as your Elixir script. This file should contain the asteroid map, where each line represents a row in the grid, and each character is either an asteroid (`#`) or empty space (`.`).
+
+  **Example `day10-data.txt`:**
+  ```
+  .#..#
+  .....
+  #####
+  ....#
+  ...##
+  ```
+
+  Replace the above content with your actual input data.
+
+#### 2. **Updated Elixir Code**
+
+Below is the updated Elixir code that reads the asteroid map from `day10-data.txt` and processes it to find the best location for the monitoring station.
+
+```elixir
+defmodule MonitoringStation do
+  @moduledoc """
+  Solution for Advent of Code 2019, Day 10, Part 1.
+  Reads the asteroid map from 'day10-data.txt' and determines the best location for the monitoring station.
+  """
+
+  @doc """
+  Reads the asteroid map from the specified file and returns its content as a string.
+  """
+  def read_map_from_file(file_path) do
+    case File.read(file_path) do
+      {:ok, content} ->
+        content
+
+      {:error, reason} ->
+        IO.puts("Error reading file #{file_path}: #{reason}")
+        System.halt(1)
+    end
+  end
+
+  @doc """
+  Parses the asteroid map and returns a list of {x, y} coordinates where asteroids are present.
+  """
+  def parse_map(map) do
+    map
+    |> String.split("\n", trim: true)
+    |> Enum.with_index()
+    |> Enum.flat_map(fn {line, y} ->
+      line
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.filter(fn {char, _x} -> char == "#" end)
+      |> Enum.map(fn {_char, x} -> {x, y} end)
+    end)
+  end
+
+  @doc """
+  Calculates the number of other asteroids visible from each asteroid.
+  Returns a map with asteroid coordinates as keys and visibility counts as values.
+  """
+  def calculate_visibility(asteroids) do
+    Enum.reduce(asteroids, %{}, fn asteroid, acc ->
+      other_asteroids = List.delete(asteroids, asteroid)
+
+      angles =
+        other_asteroids
+        |> Enum.map(fn other ->
+          dx = elem(other, 0) - elem(asteroid, 0)
+          dy = elem(other, 1) - elem(asteroid, 1)
+          :math.atan2(dy, dx)
+        end)
+        |> Enum.uniq()
+
+      Map.put(acc, asteroid, length(angles))
+    end)
+  end
+
+  @doc """
+  Finds the asteroid with the maximum number of detectable asteroids.
+  Returns a tuple with the best asteroid's coordinates and the count.
+  """
+  def find_best_location(map) do
+    asteroids = parse_map(map)
+    visibility = calculate_visibility(asteroids)
+
+    {best_asteroid, max_count} =
+      visibility
+      |> Enum.max_by(fn {_asteroid, count} -> count end)
+
+    {best_asteroid, max_count}
+  end
+
+  @doc """
+  The main entry point of the script.
+  Reads the asteroid map from 'day10-data.txt', finds the best location, and prints the result.
+  """
+  def main do
+    file_path = "day10-data.txt"
+    map = read_map_from_file(file_path)
+    {best_location, count} = find_best_location(map)
+    IO.puts("Best Location: #{inspect(best_location)} with #{count} detectable asteroids.")
+  end
+end
+
+# Execute the main function when the script is run
+MonitoringStation.main()
+```
+
+#### 3. **Explanation of the Changes**
+
+1. **`read_map_from_file/1`:**
+   - **Purpose:** Reads the content of `day10-data.txt`.
+   - **Error Handling:** If the file cannot be read (e.g., it doesn't exist), the program prints an error message and exits gracefully.
+   - **Usage:** This function is called in the `main/0` function to obtain the asteroid map.
+
+2. **`main/0`:**
+   - **Purpose:** Acts as the entry point of the script.
+   - **Functionality:**
+     - Reads the asteroid map from `day10-data.txt`.
+     - Processes the map to find the best location.
+     - Prints the result to the console.
+   - **Execution:** The `main/0` function is invoked at the end of the script to run the program when executed.
+
+3. **Removed the Hardcoded Map:**
+   - The previous example usage with a hardcoded `map` string has been removed.
+   - The script now relies entirely on the contents of `day10-data.txt`.
+
+4. **`String.split/2` Enhancement:**
+   - Added the `trim: true` option to `String.split/2` to remove any trailing empty lines, ensuring robust parsing.
+
+#### 4. **Running the Updated Code**
+
+1. **Ensure File Placement:**
+   - Place the `day10-data.txt` file in the **same directory** as your Elixir script (e.g., `monitoring_station.exs`).
+
+2. **Save the Script:**
+   - Save the updated Elixir code to a file, for example, `monitoring_station.exs`.
+
+3. **Execute the Script:**
+   - Open your terminal and navigate to the directory containing `monitoring_station.exs` and `day10-data.txt`.
+   - Run the script using Elixir:
+
+     ```bash
+     elixir monitoring_station.exs
+     ```
+
+4. **Expected Output:**
+   - The program will output the best location and the number of detectable asteroids. For example:
+
+     ```
+     Best Location: {3, 4} with 8 detectable asteroids.
+     ```
+
+   - This indicates that the asteroid at coordinates `{3, 4}` can detect `8` other asteroids, which is the maximum for the provided map.
+
+#### 5. **Sample `day10-data.txt` and Output**
+
+**Sample `day10-data.txt`:**
+```
+.#..#
+.....
+#####
+....#
+...##
+```
+
+**Expected Output:**
+```
+Best Location: {3, 4} with 8 detectable asteroids.
+```
+
+#### 6. **Additional Enhancements (Optional)**
+
+For improved usability and flexibility, you might consider the following enhancements:
+
+- **Command-Line Arguments:**
+  - Allow the user to specify the input file path as a command-line argument.
+  
+- **Unit Tests:**
+  - Implement tests to verify the correctness of each function, especially `parse_map/1` and `calculate_visibility/1`.
+
+- **Optimizations:**
+  - For very large maps, consider optimizing the visibility calculation, possibly by caching or using more efficient data structures.
+
+However, for the scope of **Advent of Code 2019, Day 10, Part 1**, the provided solution should suffice.
+
+### **Conclusion**
+
+By modifying the Elixir script to read from an external file, we've made the solution more adaptable and user-friendly. You can now easily change the input by updating `day10-data.txt` without altering the code. This approach is particularly beneficial for handling large inputs or running multiple test cases.
+
+Feel free to reach out if you have any further questions or need additional assistance!

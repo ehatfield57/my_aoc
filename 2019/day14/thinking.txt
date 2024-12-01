@@ -1,0 +1,60 @@
+
+'#hash(("A" . (2 ((9 "ORE"))))                      ; 2 "A"    == (9 "ORE")
+       ("AB" . (1 ((3 "A") (4 "B"))))               ; 1 "AB"   == (3 "A") + (4 "B")
+       ("B" . (3 ((8 "ORE"))))                      ; 3 "B"    == (8 "ORE")
+       ("BC" . (1 ((5 "B") (7 "C"))))               ; 1 "BC"   == (5 "B") + (7 "C")
+       ("C" . (5 ((7 "ORE"))))                      ; 5 "C"    == (7 "ORE")
+       ("CA" . (1 ((4 "C") (1 "A"))))               ; 1 "CA"   == (4 "C") + (1 "A")
+       ("FUEL" . (1 ((2 "AB") (3 "BC") (4 "CA"))))) ; 1 "FUEL" == (2 "AB") + (3 "BC") + (4 "CA")
+
+
+1 "FUEL" == (2 * "AB") + (3 * "BC") + (4 * "CA")
+1 "FUEL" == (2 * ((3 * "A") + (4 * "B"))) + (3 * ((5 * "B") + (7 * "C"))) + (4 * ((4 * "C") + (1 * "A")))
+1 "FUEL" == ((6 * "A") + (8 * "B")) + ((15 * "B") + (21 * "C")) + ((16 * "C") + (4 * "A"))
+1 "FUEL" == (6 * "A") + (8 * "B") + (15 * "B") + (21 * "C") + (16 * "C") + (4 * "A")
+1 "FUEL" == (6 * "A") + (4 * "A") + (8 * "B") + (15 * "B") + (21 * "C") + (16 * "C")
+1 "FUEL" == (10 * "A") + (23 * "B") + (37 * "C")
+1 "FUEL" == ceiling(/ (10 * "A") 2) + ceiling(/ (23 * "B") 3) + ceiling(/ (37 * "C") 5)
+
+     165 == (+ (* 9 (ceiling (/ 10 2))) (* 8 (ceiling (/ 23 3))) (* 7 (ceiling (/ 37 5))))
+
+;  (/ (+ 8 15) 3)
+; (/ (+ 6 4) 2) |  (/ (+ 21 16) 5)
+;       v       v       v
+; (+ (* 5 9) (* 8 8) (* 8 7)) = 165 (correct)
+
+A  chemical: FUEL, divisor: 1
+B    multiplier: 2
+
+  A  chemical: AB, divisor: 1
+  B    multiplier: 3
+    A  chemical: A, divisor: 2
+    B    multiplier: 9
+    C      ORE: (9 ORE)
+    B    multiplier: 4
+    A  chemical: B, divisor: 3
+    B    multiplier: 8
+    C      ORE: (8 ORE)
+
+  B    multiplier: 3
+    A  chemical: BC, divisor: 1
+    B    multiplier: 5
+    A  chemical: B, divisor: 3
+    B    multiplier: 8
+    C      ORE: (8 ORE)
+    B    multiplier: 7
+    A  chemical: C, divisor: 5
+    B    multiplier: 7
+    C      ORE: (7 ORE)
+
+  B    multiplier: 4
+    A  chemical: CA, divisor: 1
+    B    multiplier: 4
+    A  chemical: C, divisor: 5
+    B    multiplier: 7
+    C      ORE: (7 ORE)
+    B    multiplier: 1
+    A  chemical: A, divisor: 2
+    B    multiplier: 9
+    C      ORE: (9 ORE)
+

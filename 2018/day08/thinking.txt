@@ -1,0 +1,55 @@
+
+Input: (2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2)
+2 3 - 0 3 10 11 12 1 1 0 1 99 2 1 1 2
+    0 3 - 10 11 12 <--
+    1 1 - 0 1 99 2 1 1 2
+        0 1 - 99 2 1 1 2
+    2 <--
+  1 1 2 <--
+
+Input: (2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2)
+2 3 - 0 3 10 11 12 1 1 0 1 99 2 1 1 2
+ 1) 0 3 - 10 11 12 1 1 0 1 99 2 1 1 2
+   10 11 12                              <-- take 3
+ 2) 1 1 - 0 1 99 2 1 1 2
+   1) 0 1 - 99 2 1 1 2
+     99                                  <-- take 1
+   2                                     <-- take 1
+ 1 1 2                                   <-- take 3
+
+(+ 1 1 2 2 99 10 11 12)
+
+Algorithm: (Use an input string)
+ a) Take first number -> node
+ b) Take second number -> meta-cnt
+ c) For n = 1 to node
+ c1) Algorithm recursion
+ d) For m = 1 to meta-cnt
+ d1) Add next number to accumuator
+
+--- Part Two ---
+
+'#hash((children
+        .
+        #hash((1 . #hash((total . 33) (type . leaf)))
+              (2
+               .
+               #hash((children
+                      .
+                      #hash((1 . #hash((total . 99) (type . leaf)))))
+                     (meta . (2))
+                     (type . node)))))
+       (meta . (2 1 1))
+       (type . node))
+
+
+  (hash-set! node 'total 0)
+  (for ((i (hash-ref node 'meta)))                       --> i = 2, 1 1
+       (when (hash-has-key? (hash-ref node 'children) i) --> Yes
+         (hash-set! node 'total (+
+           (hash-ref node 'total)                        --> 0
+           (hash-ref (hash-ref node 'children) i)))      --> 
+        )
+  )
+
+

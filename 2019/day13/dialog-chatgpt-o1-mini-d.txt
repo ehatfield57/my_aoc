@@ -1,0 +1,373 @@
+Apologies for the continued issues you're experiencing. To help diagnose and resolve the problem, I've restructured the Intcode implementation to include comprehensive debugging information and ensured that all functions are publicly accessible as per your request. This will allow you to trace the execution step-by-step and identify where things might be going wrong.
+
+### **Overview of the Solution**
+
+1. **Intcode Computer Implementation**:
+    - **Memory Representation**: Uses a `Map` to allow dynamic memory access, accommodating addresses beyond the initial program length.
+    - **Instruction Parsing**: Separates opcode and parameter modes accurately.
+    - **Parameter Handling**: Distinguishes between **read** and **write** parameters, ensuring correct interpretation based on parameter modes.
+    - **Debugging Information**: Prints detailed information about each instruction execution, including opcode, parameters, modes, instruction pointer (`IP`), and relative base.
+    - **Public Functions**: All functions are defined as public (`def`) to comply with your request.
+
+2. **Main Module (`Day13Part1`)**:
+    - **Input Handling**: Reads the Intcode program from `day13-data.txt`.
+    - **Execution**: Runs the Intcode program and collects outputs.
+    - **Output Processing**: Parses the outputs into triplets (`{x, y, tile_id}`) and counts the number of block tiles (`tile_id = 2`).
+    - **Debugging**: Outputs messages indicating the progress of the program execution.
+
+3. **Testing**:
+    - Includes a simple test case to verify the correctness of the Intcode implementation.
+    - You can modify `day13-data.txt` with the test input to ensure the program behaves as expected before running it with the actual Advent of Code input.
+
+### **Revised Elixir Code with Debugging Information**
+
+```elixir
+defmodule Intcode do
+  @moduledoc """
+  Intcode computer implementation for Advent of Code 2019.
+  All functions are public and include debugging information.
+  """
+
+  # Run the Intcode program
+  def run(program, input \\ []) do
+    memory = initialize_memory(program)
+    execute(memory, 0, 0, input, [])
+  end
+
+  # Initialize memory as a map for dynamic access
+  def initialize_memory(program) do
+    Enum.with_index(program)
+    |> Enum.reduce(%{}, fn {val, idx}, acc -> Map.put(acc, idx, val) end)
+  end
+
+  # Execute the Intcode program
+  def execute(memory, ip, relative_base, input, output) do
+    instruction = Map.get(memory, ip, 0)
+    {opcode, modes} = parse_instruction(instruction)
+
+    IO.puts("\n--- Executing Instruction ---")
+    IO.puts("IP: #{ip}, Relative Base: #{relative_base}")
+    IO.puts("Opcode: #{opcode}, Modes: #{inspect modes}")
+
+    case opcode do
+      1 ->  # Addition
+        [param1, param2] = get_parameters(memory, ip, modes, relative_base, 2)
+        dest = get_write_address(memory, ip + 3, Enum.at(modes, 2, 0), relative_base)
+        IO.puts("Adding #{param1} + #{param2}, storing result at address #{dest}")
+        memory = Map.put(memory, dest, param1 + param2)
+        execute(memory, ip + 4, relative_base, input, output)
+
+      2 ->  # Multiplication
+        [param1, param2] = get_parameters(memory, ip, modes, relative_base, 2)
+        dest = get_write_address(memory, ip + 3, Enum.at(modes, 2, 0), relative_base)
+        IO.puts("Multiplying #{param1} * #{param2}, storing result at address #{dest}")
+        memory = Map.put(memory, dest, param1 * param2)
+        execute(memory, ip + 4, relative_base, input, output)
+
+      3 ->  # Input
+        case input do
+          [in_val | rest_input] ->
+            dest = get_write_address(memory, ip + 1, Enum.at(modes, 0, 0), relative_base)
+            IO.puts("Input instruction: storing value #{in_val} at address #{dest}")
+            memory = Map.put(memory, dest, in_val)
+            execute(memory, ip + 2, relative_base, rest_input, output)
+
+          [] ->
+            IO.puts("Input instruction: no input available, waiting for input.")
+            {:need_input, memory, ip, relative_base, output}
+        end
+
+      4 ->  # Output
+        [param] = get_parameters(memory, ip, modes, relative_base, 1)
+        IO.puts("Output instruction: outputting value #{param}")
+        execute(memory, ip + 2, relative_base, input, [param | output])
+
+      5 ->  # Jump-if-true
+        [param1, param2] = get_parameters(memory, ip, modes, relative_base, 2)
+        if param1 != 0 do
+          IO.puts("Jump-if-true: #{param1} is non-zero, jumping to address #{param2}")
+          execute(memory, param2, relative_base, input, output)
+        else
+          IO.puts("Jump-if-true: #{param1} is zero, moving to next instruction")
+          execute(memory, ip + 3, relative_base, input, output)
+        end
+
+      6 ->  # Jump-if-false
+        [param1, param2] = get_parameters(memory, ip, modes, relative_base, 2)
+        if param1 == 0 do
+          IO.puts("Jump-if-false: #{param1} is zero, jumping to address #{param2}")
+          execute(memory, param2, relative_base, input, output)
+        else
+          IO.puts("Jump-if-false: #{param1} is non-zero, moving to next instruction")
+          execute(memory, ip + 3, relative_base, input, output)
+        end
+
+      7 ->  # Less than
+        [param1, param2] = get_parameters(memory, ip, modes, relative_base, 2)
+        dest = get_write_address(memory, ip + 3, Enum.at(modes, 2, 0), relative_base)
+        result = if param1 < param2, do: 1, else: 0
+        IO.puts("Less than: #{param1} < #{param2} = #{result}, storing at address #{dest}")
+        memory = Map.put(memory, dest, result)
+        execute(memory, ip + 4, relative_base, input, output)
+
+      8 ->  # Equals
+        [param1, param2] = get_parameters(memory, ip, modes, relative_base, 2)
+        dest = get_write_address(memory, ip + 3, Enum.at(modes, 2, 0), relative_base)
+        result = if param1 == param2, do: 1, else: 0
+        IO.puts("Equals: #{param1} == #{param2} = #{result}, storing at address #{dest}")
+        memory = Map.put(memory, dest, result)
+        execute(memory, ip + 4, relative_base, input, output)
+
+      9 ->  # Adjust relative base
+        [param] = get_parameters(memory, ip, modes, relative_base, 1)
+        new_relative_base = relative_base + param
+        IO.puts("Adjusting relative base by #{param}, new relative base is #{new_relative_base}")
+        execute(memory, ip + 2, new_relative_base, input, output)
+
+      99 ->  # Halt
+        IO.puts("Halt instruction: program has terminated.")
+        {:halt, Enum.reverse(output)}
+
+      _ ->
+        IO.puts("Unknown opcode #{opcode} encountered at IP #{ip}. Terminating execution.")
+        {:error, "Unknown opcode #{opcode} at position #{ip}"}
+    end
+  end
+
+  # Parse instruction into opcode and parameter modes
+  def parse_instruction(instruction) do
+    opcode = rem(instruction, 100)
+    modes = instruction
+            |> div(100)
+            |> Integer.digits()
+            |> Enum.reverse()
+    {opcode, modes}
+  end
+
+  # Get parameters for read operations based on parameter modes
+  def get_parameters(memory, ip, modes, relative_base, count) do
+    Enum.map(1..count, fn i ->
+      param = Map.get(memory, ip + i, 0)
+      mode = Enum.at(modes, i - 1, 0)
+
+      case mode do
+        0 ->  # Position mode
+          Map.get(memory, param, 0)
+        1 ->  # Immediate mode
+          param
+        2 ->  # Relative mode
+          Map.get(memory, relative_base + param, 0)
+        _ ->
+          IO.puts("Error: Unknown parameter mode #{mode} at IP #{ip}")
+          0
+      end
+    end)
+  end
+
+  # Get write address based on parameter mode
+  def get_write_address(memory, ip, mode, relative_base) do
+    param = Map.get(memory, ip, 0)
+    case mode do
+      0 -> 
+        param
+      2 -> 
+        relative_base + param
+      _ ->
+        IO.puts("Error: Unsupported parameter mode #{mode} for write operation at IP #{ip}")
+        param
+    end
+  end
+end
+
+defmodule Day13Part1 do
+  @moduledoc """
+  Solution for Advent of Code 2019 Day 13 Part 1.
+  Runs the Intcode program and counts block tiles (tile_id=2).
+  Includes debugging information to trace computation.
+  """
+
+  def run do
+    program = read_input("day13-data.txt")
+    IO.puts("=== Advent of Code 2019 - Day 13 Part 1 ===")
+    IO.puts("Program loaded. Starting Intcode computer execution...")
+    
+    case Intcode.run(program) do
+      {:halt, output} ->
+        tiles = parse_output(output)
+        block_tiles = Enum.count(tiles, fn {_x, _y, tile_id} -> tile_id == 2 end)
+        IO.puts("\n=== Result ===")
+        IO.puts("Number of block tiles: #{block_tiles}")
+
+      {:need_input, _memory, _ip, _relative_base, _output} ->
+        IO.puts("Intcode program is waiting for input, which was not provided.")
+
+      {:error, message} ->
+        IO.puts("An error occurred during Intcode execution: #{message}")
+    end
+  end
+
+  # Read input from file and parse into list of integers
+  def read_input(filename) do
+    case File.read(filename) do
+      {:ok, content} ->
+        content
+        |> String.trim()
+        |> String.split(",")
+        |> Enum.map(&String.to_integer/1)
+
+      {:error, reason} ->
+        IO.puts("Error reading file #{filename}: #{reason}")
+        []
+    end
+  end
+
+  # Parse output list into list of {x, y, tile_id} tuples
+  def parse_output([]), do: []
+  def parse_output([x, y, tile_id | rest]) do
+    [{x, y, tile_id} | parse_output(rest)]
+  end
+  def parse_output(_), do: []
+end
+
+# To execute the solution, uncomment the following line:
+Day13Part1.run()
+```
+
+### **Explanation of the Revised Code**
+
+1. **Intcode Module**:
+    - **Public Functions**: All functions (`run`, `initialize_memory`, `execute`, `parse_instruction`, `get_parameters`, `get_write_address`) are publicly accessible.
+    - **Memory Initialization**: The program is loaded into a `Map` with memory addresses as keys, allowing dynamic expansion.
+    - **Instruction Execution (`execute/5`)**:
+        - **Debugging Statements**: Before executing each instruction, the current `IP`, `Relative Base`, `Opcode`, and `Modes` are printed.
+        - **Opcode Handling**: Each opcode (`1` to `9`, and `99`) is handled with appropriate operations and corresponding debugging messages.
+        - **Parameter Modes**: Correctly distinguishes between **read** and **write** parameters, handling position (`0`), immediate (`1`), and relative (`2`) modes.
+        - **Error Handling**: Prints error messages for unknown opcodes or unsupported parameter modes.
+    - **Parameter Retrieval**:
+        - **`get_parameters/5`**: Fetches read parameters based on their modes.
+        - **`get_write_address/4`**: Determines the correct memory address for write operations based on the parameter mode.
+
+2. **Day13Part1 Module**:
+    - **Execution Flow (`run/0`)**:
+        - **Input Reading**: Reads and parses the Intcode program from `day13-data.txt`.
+        - **Intcode Execution**: Runs the Intcode program and captures the output.
+        - **Output Processing**: Parses the output into `{x, y, tile_id}` tuples.
+        - **Result Calculation**: Counts the number of block tiles (`tile_id = 2`) and prints the result.
+    - **Error Handling**: Gracefully handles scenarios where the Intcode program requests input or encounters errors.
+
+3. **Debugging Information**:
+    - **Instruction Details**: Each executed instruction is accompanied by detailed print statements that reveal the internal state and operations being performed.
+    - **Output Tracing**: Outputs from the Intcode program are printed as they are executed, allowing you to verify the correctness of the program's behavior.
+
+### **Testing the Solution**
+
+Before running the solution with your actual `day13-data.txt`, it's prudent to perform a simple test to ensure that the Intcode implementation behaves as expected.
+
+1. **Create a Test Input File**:
+    - **Filename**: `day13-data.txt`
+    - **Content**:
+      ```
+      104,1,104,2,104,2,104,2,99
+      ```
+    - **Explanation**:
+        - `104,1`: Output `1` (x-coordinate)
+        - `104,2`: Output `2` (y-coordinate)
+        - `104,2`: Output `2` (tile_id)
+        - `99`: Halt
+    - **Expected Behavior**: The program should output one block tile at coordinates `(1, 2)`.
+
+2. **Run the Script**:
+    - **Command**:
+      ```bash
+      elixir your_script_name.exs
+      ```
+      Replace `your_script_name.exs` with the actual filename containing the Elixir code.
+    - **Expected Output**:
+      ```
+      === Advent of Code 2019 - Day 13 Part 1 ===
+      Program loaded. Starting Intcode computer execution...
+
+      --- Executing Instruction ---
+      IP: 0, Relative Base: 0
+      Opcode: 4, Modes: [1]
+      Output instruction: outputting value 1
+
+      --- Executing Instruction ---
+      IP: 2, Relative Base: 0
+      Opcode: 4, Modes: [1]
+      Output instruction: outputting value 2
+
+      --- Executing Instruction ---
+      IP: 4, Relative Base: 0
+      Opcode: 4, Modes: [1]
+      Output instruction: outputting value 2
+
+      --- Executing Instruction ---
+      IP: 6, Relative Base: 0
+      Opcode: 4, Modes: [1]
+      Output instruction: outputting value 2
+
+      --- Executing Instruction ---
+      IP: 8, Relative Base: 0
+      Opcode: 99, Modes: []
+      Halt instruction: program has terminated.
+
+      === Result ===
+      Number of block tiles: 1
+      ```
+    - **Interpretation**:
+        - The program outputs three triplets, but since the test input is designed to output only one triplet (`{1, 2, 2}`), the fourth output (`2`) is ignored.
+        - The final count of block tiles is correctly identified as `1`.
+
+3. **Run with Actual Input**:
+    - **Replace `day13-data.txt`** with your actual Intcode program input from Advent of Code.
+    - **Execute the Script**:
+      ```bash
+      elixir your_script_name.exs
+      ```
+    - **Observe the Output**: The script will print detailed debugging information for each instruction and finally output the number of block tiles.
+
+### **Understanding the Debugging Output**
+
+The debugging statements provide a clear trace of the Intcode program's execution:
+
+- **Instruction Pointer (`IP`)**: Indicates the current position in the program.
+- **Relative Base**: Shows the current relative base used for relative parameter modes.
+- **Opcode and Modes**: Displays the current opcode being executed and its parameter modes.
+- **Operation Details**: For each opcode, it prints detailed information about the operation being performed, including any jumps, calculations, or memory writes.
+- **Halting**: Indicates when the program has successfully terminated.
+
+### **Potential Issues and Resolutions**
+
+If after running the test case the output is as expected, but running with your actual input still yields incorrect results (e.g., zero block tiles), consider the following:
+
+1. **Verify the Input File**:
+    - Ensure that `day13-data.txt` contains the correct Intcode program as a comma-separated list of integers without any trailing commas or non-integer values.
+
+2. **Review the Debugging Output**:
+    - Examine the printed instructions to verify that the program is correctly outputting triplets of `{x, y, tile_id}`.
+    - Check for any unexpected instructions or errors that might indicate issues with the Intcode program's execution.
+
+3. **Check for Multiple Block Tiles**:
+    - The final count should reflect the total number of block tiles (`tile_id = 2`) present in the output triplets.
+    - Ensure that the `parse_output/1` function correctly groups the outputs into triplets.
+
+4. **Handling Large Outputs**:
+    - Advent of Code Intcode programs can produce a large number of outputs. Ensure that your terminal can handle the extensive debugging information without truncation.
+    - Consider redirecting the output to a file for easier examination:
+      ```bash
+      elixir your_script_name.exs > debug_output.txt
+      ```
+
+5. **Performance Considerations**:
+    - Extensive debugging can slow down the execution, especially for large Intcode programs. Once you've identified and resolved the issue, you may want to comment out or remove the debugging `IO.puts` statements to improve performance.
+
+### **Final Notes**
+
+- **Intcode Specification**: This implementation adheres to the Intcode specifications provided in Advent of Code 2019, ensuring accurate execution of the program. It's crucial to handle parameter modes and opcodes precisely to avoid misinterpretations.
+  
+- **Extensibility**: The modular design allows for easy extension or modification, making it suitable for solving other Intcode-related challenges within Advent of Code.
+
+- **Further Assistance**: If you continue to experience issues after following these steps, please provide specific excerpts from the debugging output. This information can help pinpoint the exact cause of the problem.
+
+Feel free to reach out if you need further assistance or have additional questions!

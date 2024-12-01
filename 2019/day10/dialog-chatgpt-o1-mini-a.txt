@@ -1,0 +1,137 @@
+Sure! I'll help you solve **Advent of Code 2019, Day 10, Part 1** using Elixir.
+
+### **Problem Overview**
+
+In this problem, you're given a map of asteroids in a grid format, where each position is either an asteroid (`#`) or empty space (`.`). The goal is to determine the best location for a new monitoring station. The best location is the asteroid that can detect the largest number of other asteroids. An asteroid can detect another if there's a direct line of sight between them, meaning no other asteroid blocks the view.
+
+### **Approach**
+
+1. **Parse the Map:** Convert the input grid into a list of asteroid coordinates.
+
+2. **Calculate Visibility:** For each asteroid, determine how many other asteroids it can detect. This can be done by calculating the angles (slopes) from the current asteroid to all others. Since multiple asteroids can lie in the same direction (same angle), only the first one is visible.
+
+3. **Determine the Maximum:** Find the asteroid with the highest number of detectable asteroids.
+
+### **Elixir Implementation**
+
+Below is the Elixir code that accomplishes this task:
+
+```elixir
+defmodule MonitoringStation do
+  @moduledoc """
+  Solution for Advent of Code 2019, Day 10, Part 1.
+  """
+
+  @doc """
+  Parses the asteroid map and returns a list of {x, y} coordinates where asteroids are present.
+  """
+  def parse_map(map) do
+    map
+    |> String.split("\n")
+    |> Enum.with_index()
+    |> Enum.flat_map(fn {line, y} ->
+      line
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.filter(fn {char, _x} -> char == "#" end)
+      |> Enum.map(fn {_char, x} -> {x, y} end)
+    end)
+  end
+
+  @doc """
+  Calculates the number of other asteroids visible from each asteroid.
+  Returns a map with asteroid coordinates as keys and visibility counts as values.
+  """
+  def calculate_visibility(asteroids) do
+    Enum.reduce(asteroids, %{}, fn asteroid, acc ->
+      other_asteroids = List.delete(asteroids, asteroid)
+
+      angles =
+        other_asteroids
+        |> Enum.map(fn other ->
+          dx = elem(other, 0) - elem(asteroid, 0)
+          dy = elem(other, 1) - elem(asteroid, 1)
+          :math.atan2(dy, dx)
+        end)
+        |> Enum.uniq()
+
+      Map.put(acc, asteroid, length(angles))
+    end)
+  end
+
+  @doc """
+  Finds the asteroid with the maximum number of detectable asteroids.
+  Returns a tuple with the best asteroid's coordinates and the count.
+  """
+  def find_best_location(map) do
+    asteroids = parse_map(map)
+    visibility = calculate_visibility(asteroids)
+
+    {best_asteroid, max_count} =
+      visibility
+      |> Enum.max_by(fn {_asteroid, count} -> count end)
+
+    {best_asteroid, max_count}
+  end
+end
+
+# Example usage:
+
+map = """
+.#..#
+.....
+#####
+....#
+...##
+"""
+
+{best_location, count} = MonitoringStation.find_best_location(map)
+IO.puts("Best Location: #{inspect(best_location)} with #{count} detectable asteroids.")
+```
+
+### **Explanation of the Code**
+
+1. **`parse_map/1`:**
+   - Splits the input map into lines.
+   - Iterates over each line with its `y` coordinate.
+   - For each character in the line, if it's an asteroid (`#`), it records its `{x, y}` coordinates.
+
+2. **`calculate_visibility/1`:**
+   - For each asteroid, it considers all other asteroids.
+   - Calculates the angle from the current asteroid to each other asteroid using `:math.atan2/2`.
+   - Uses `Enum.uniq/1` to ensure that only unique angles are counted, representing direct lines of sight.
+   - Stores the count of unique angles for each asteroid.
+
+3. **`find_best_location/1`:**
+   - Parses the map to get asteroid coordinates.
+   - Calculates visibility for each asteroid.
+   - Finds the asteroid with the maximum visibility count.
+
+4. **Example Usage:**
+   - Provides a sample map.
+   - Finds and prints the best location along with the number of detectable asteroids.
+
+### **Running the Code**
+
+To run this code:
+
+1. Save it to a file, e.g., `monitoring_station.exs`.
+2. Execute it using Elixir:
+
+```bash
+elixir monitoring_station.exs
+```
+
+You should see an output similar to:
+
+```
+Best Location: {3, 4} with 8 detectable asteroids.
+```
+
+This indicates that the asteroid at coordinates `{3, 4}` can detect `8` other asteroids, which is the maximum for the provided map.
+
+### **Conclusion**
+
+This solution efficiently parses the asteroid map, calculates visibility based on unique angles, and determines the optimal location for the monitoring station. Elixir's powerful enumeration and math functions make the implementation concise and readable.
+
+Feel free to modify the `map` variable with your input to find the best location for your specific scenario!

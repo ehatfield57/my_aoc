@@ -1,0 +1,1 @@
+dot -Tpdf test.dot -o test.pdf

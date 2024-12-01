@@ -1,0 +1,40 @@
+digraph G {
+	node0 [label="c"];
+	node1 [label="g"];
+	node2 [label="C"];
+	node3 [label="b"];
+	node4 [label="f"];
+	node5 [label="B"];
+	node6 [label="F"];
+	node7 [label="a"];
+	node8 [label="e"];
+	node9 [label="A"];
+	node10 [label="d"];
+	node11 [label="@"];
+	node12 [label="D"];
+	subgraph U {
+		edge [dir=none];
+		node0 -> node10 [label="2"];
+		node0 -> node5 [label="2"];
+		node0 -> node3 [label="28"];
+		node1 -> node6 [label="2"];
+		node1 -> node3 [label="38"];
+		node2 -> node12 [label="2"];
+		node2 -> node3 [label="2"];
+		node3 -> node6 [label="36"];
+		node3 -> node10 [label="30"];
+		node3 -> node8 [label="34"];
+		node3 -> node5 [label="26"];
+		node3 -> node11 [label="22"];
+		node3 -> node9 [label="32"];
+		node3 -> node7 [label="24"];
+		node4 -> node12 [label="2"];
+		node5 -> node7 [label="2"];
+		node6 -> node8 [label="2"];
+		node7 -> node11 [label="2"];
+		node8 -> node9 [label="2"];
+		node9 -> node10 [label="2"];
+	}
+	subgraph D {
+	}
+}

@@ -1,0 +1,21 @@
+2015 - Day 19 (both part 1 and 2)
+2016 - Day 11 (both part 1 and 2)
+2016 - Day 19 Part 2
+2017 - Day 17 Part 2 (Mine was too slow)
+2017 - Day 18 Part 2 (Mine didn't work)
+2017 - Day 21 Parts 1 & 2 (Mine didn't work)
+2017 - Day 22 Parts 1 & 2 (Reading Assembly)
+2018 - Day  7 Part 2 (Mine didn't get right answer) [Figured it out!]
+2018 - Day 13 Part 2 (Couldn't get it to give the correct answer)
+2018 - Day 15 Parts 1 & 2 (Totally cheated with Python Reddit answer)
+2018 - Day 17 Parts 1 & 2 (Totally cheated with GO Reddit answer)
+2018 - Day 19 Part 2 (Couldn't figure out assembly language)
+2018 - Day 21 Parts 1 & 2 (Couldn't figure out the assembly language)
+2018 - Day 22 Part 2 (My answer was off by 2 - So used Reddit)
+2018 - Day 23 Part 2 (Just ran out of steam - Used Reddit Rust example)
+2018 - Day 24 Parts 1 & 2 (Didn't even try - Used Reddit Python example)
+2019 - Day  5 Part 2 (Too lazy to try - Used Reddit Python code)
+2019 - Day  7 Parts 1 & 2 (Didn't even try - Used Reddit Python example)
+(Basically all of 2019)
+2020 - Day 10 Part 2 (Combination math confused me - Used Reddit Python)
+

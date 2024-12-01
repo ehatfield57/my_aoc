@@ -1,0 +1,73 @@
+
+Floors:
+-------
+The first floor contains:
+ * thulium generator
+ * thulium-compatible microchip
+ * plutonium generator
+ * strontium generator
+
+The second floor contains:
+ * plutonium-compatible microchip
+ * strontium-compatible microchip
+
+The third floor contains:
+ * promethium generator
+ * promethium-compatible microchip
+ * ruthenium generator
+ * ruthenium-compatible microchip
+
+The fourth floor contains:
+ * 
+
+
+Generators (RTGs):
+------------------
+ * plutonium generator  PLG
+ * promethium generator PRG
+ * ruthenium generator  RUG
+ * strontium generator  STG
+ * thulium generator    THG
+
+Microchips:
+-----------
+ * plutonium-compatible microchip  PLM
+ * promethium-compatible microchip PRM
+ * ruthenium-compatible microchip  RUM
+ * strontium-compatible microchip  STM
+ * thulium-compatible microchip    THM
+
+
+
+    E  PLG PLM PRG PRM RUG RUM STG STM THG THM
+    -  ------- ------- ------- ------- -------
+F4  .   .   .  PRG PRM RUG RUM  .   .   .   . 
+F3  .   .   .   .   .   .   .   .   .   .   . 
+F2  .   .  PLM  .   .   .   .   .  STM  .   . 
+F1  E  PLG  .   .   .   .   .  STG  .  THG THM
+
+
+
+(Test Data)
+Valid: (- = no, + = yes) (G = Generator (RTG), M = Microchip, H = Hydrogen, L = Lithium
+======================== --------------------------------------------------------------
+- floor: (HM LG),        groups: ((G . (L))   (H . (M))   (L . (G))   (M . (H)))       : Wrong Microchip with Generator
+- floor: (LM HG),        groups: ((G . (H))   (H . (G))   (L . (M))   (M . (L)))       : Wrong Microchip with Generator
+- floor: (HM LM HG),     groups: ((G . (H))   (H . (G M)) (L . (M))   (M . (L H)))     : Unsafe Microchip with Safe Microchip
+- floor: (HM LM LG),     groups: ((G . (L))   (H . (M))   (L . (G M)) (M . (L H)))     : Unsafe Microchip with Safe Microchip
+ 
++ floor: (HG LG),        groups: ((G . (L H)) (H . (G))   (L . (G)))                   : Both Generators
++ floor: (HM LM),        groups: ((H . (M))   (L . (M))   (M . (L H)))                 : Both Microchips
++ floor: (HM HG),        groups: ((G . (H))   (H . (G M)) (M . (H)))                   : Same Element (H)
++ floor: (LM LG),        groups: ((G . (L))   (L . (G M)) (M . (L)))                   : Same Element (L)
++ floor: (HM HG LG),     groups: ((G . (L H)) (H . (G M)) (L . (G))   (M . (H)))       : Extra Generator with Safe Microchip (H)
++ floor: (LM HG LG),     groups: ((G . (L H)) (H . (G))   (L . (G M)) (M . (L)))       : Extra Generator with Safe Microchip (L)
++ floor: (HM LM HG LG),  groups: ((G . (L H)) (H . (G M)) (L . (G M)) (M . (L H)))     : All Safe Microchips (MG+H, MG+L)
+
+! Formula ! Microchip with Generator that is not it's Element
+!  * We have both Microchips and Generators:
+!    * Microchips >= 1 (check), and
+!    * Generators >= 1 (check)
+!  * Microchip Element without same Generator Element:
+!    * For each Microchip check for Generator of same Element
+

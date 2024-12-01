@@ -1,0 +1,424 @@
+Certainly! Let's tackle **Advent of Code 2019, Day 11, Part 2** using Elixir. Building upon the solution for Part 1, we'll modify the robot's initialization and adjust the output to display the registration identifier it paints.
+
+---
+
+## **Problem Overview: Day 11, Part 2**
+
+### **Part 2 Description**
+
+In **Part 2**, the robot's starting conditions change:
+
+- **Initial Panel Color**: The robot starts on a white panel (`1`) instead of a black one (`0`).
+
+After the robot finishes executing the Intcode program, it will have painted a registration identifier on the grid. Your task is to render this identifier, typically a set of letters, by displaying the painted panels.
+
+### **Objective for Part 2**
+
+- **Render the Registration Identifier**: After running the simulation, visualize the panels painted by the robot to reveal the registration identifier.
+
+---
+
+## **Solution Overview**
+
+### **Key Changes from Part 1 to Part 2**
+
+1. **Initial Panel Color**:
+   - **Part 1**: Robot starts on a black panel (`0`).
+   - **Part 2**: Robot starts on a white panel (`1`).
+
+2. **Output Handling**:
+   - **Part 1**: Count the number of panels painted at least once.
+   - **Part 2**: Display the pattern painted by the robot.
+
+### **Implementation Steps**
+
+1. **Intcode Computer**: Utilize the same Intcode computer implementation from Part 1.
+
+2. **Robot Simulation**:
+   - **Initialization**: Start with the panel at `(0, 0)` painted white (`1`).
+   - **Movement & Painting**: Follow the same logic as Part 1, updating panel colors and moving based on Intcode outputs.
+
+3. **Rendering the Identifier**:
+   - **Determine Bounds**: Find the minimum and maximum `x` and `y` coordinates of painted panels to establish the grid boundaries.
+   - **Display Grid**: Iterate through each position within the bounds and display a character (`█`) for white panels and a space (` `) for black panels.
+
+---
+
+## **Elixir Implementation**
+
+Below is the complete Elixir solution for **Advent of Code 2019, Day 11, Part 2**. This solution builds upon the Part 1 implementation with necessary adjustments for Part 2.
+
+### **Complete Code: `day11_part2.exs`**
+
+```elixir
+defmodule Intcode do
+  defstruct memory: %{}, pointer: 0, relative_base: 0, inputs: [], outputs: [], halted: false
+
+  @opcode_param_count %{
+    1 => 3,  # Add
+    2 => 3,  # Multiply
+    3 => 1,  # Input
+    4 => 1,  # Output
+    5 => 2,  # Jump-if-true
+    6 => 2,  # Jump-if-false
+    7 => 3,  # Less than
+    8 => 3,  # Equals
+    9 => 1,  # Adjust relative base
+    99 => 0  # Halt
+  }
+
+  def new(program) do
+    initial_memory =
+      program
+      |> Enum.with_index()
+      |> Enum.map(fn {v, i} -> {i, v} end)
+      |> Map.new()
+
+    %Intcode{memory: initial_memory}
+  end
+
+  def run(%Intcode{halted: true} = state), do: state
+
+  def run(state = %Intcode{}) do
+    execute(state)
+  end
+
+  defp execute(state = %Intcode{}) do
+    opcode_full = Map.get(state.memory, state.pointer, 0)
+    opcode = rem(opcode_full, 100)
+    modes = div(opcode_full, 100)
+
+    case opcode do
+      1 -> perform_op(state, :add, modes)
+      2 -> perform_op(state, :multiply, modes)
+      3 -> perform_input(state, modes)
+      4 -> perform_output(state, modes)
+      5 -> perform_jump(state, :jump_if_true, modes)
+      6 -> perform_jump(state, :jump_if_false, modes)
+      7 -> perform_op(state, :less_than, modes)
+      8 -> perform_op(state, :equals, modes)
+      9 -> perform_relative_base(state, modes)
+      99 -> %{state | halted: true}
+      _ ->
+        IO.puts("Unknown opcode #{opcode} at position #{state.pointer}")
+        %{state | halted: true}
+    end
+  end
+
+  defp perform_op(state, operation, modes) do
+    param1 = get_param(state, state.pointer + 1, rem(modes, 10))
+    param2 = get_param(state, state.pointer + 2, rem(div(modes, 10), 10))
+    dest = get_write_address(state, state.pointer + 3, rem(div(modes, 100), 10))
+
+    result =
+      case operation do
+        :add -> param1 + param2
+        :multiply -> param1 * param2
+        :less_than -> if param1 < param2, do: 1, else: 0
+        :equals -> if param1 == param2, do: 1, else: 0
+      end
+
+    new_memory = Map.put(state.memory, dest, result)
+    %{state | memory: new_memory, pointer: state.pointer + 4}
+    |> run()
+  end
+
+  defp perform_input(state, mode) do
+    case state.inputs do
+      [input | rest_inputs] ->
+        dest = get_write_address(state, state.pointer + 1, rem(mode, 10))
+        new_memory = Map.put(state.memory, dest, input)
+        %{state | memory: new_memory, pointer: state.pointer + 2, inputs: rest_inputs}
+        |> run()
+
+      [] ->
+        # Awaiting input
+        state
+    end
+  end
+
+  defp perform_output(state, mode) do
+    output = get_param(state, state.pointer + 1, rem(mode, 10))
+    new_outputs = state.outputs ++ [output]
+    %{state | outputs: new_outputs, pointer: state.pointer + 2}
+    |> run()
+  end
+
+  defp perform_jump(state, jump_type, modes) do
+    param1 = get_param(state, state.pointer + 1, rem(modes, 10))
+    param2 = get_param(state, state.pointer + 2, rem(div(modes, 10), 10))
+
+    should_jump =
+      case jump_type do
+        :jump_if_true -> param1 != 0
+        :jump_if_false -> param1 == 0
+      end
+
+    new_pointer =
+      if should_jump do
+        param2
+      else
+        state.pointer + 3
+      end
+
+    %{state | pointer: new_pointer}
+    |> run()
+  end
+
+  defp perform_relative_base(state, mode) do
+    adjustment = get_param(state, state.pointer + 1, rem(mode, 10))
+    %{state | relative_base: state.relative_base + adjustment, pointer: state.pointer + 2}
+    |> run()
+  end
+
+  defp get_param(state, addr, mode) do
+    case mode do
+      0 -> Map.get(state.memory, Map.get(state.memory, addr, 0), 0)
+      1 -> Map.get(state.memory, addr, 0)
+      2 -> Map.get(state.memory, state.relative_base + Map.get(state.memory, addr, 0), 0)
+      _ ->
+        IO.puts("Unknown parameter mode #{mode} at address #{addr}")
+        0
+    end
+  end
+
+  defp get_write_address(state, addr, mode) do
+    case mode do
+      0 -> Map.get(state.memory, addr, 0)
+      2 -> state.relative_base + Map.get(state.memory, addr, 0)
+      _ ->
+        IO.puts("Invalid write parameter mode #{mode} at address #{addr}")
+        Map.get(state.memory, addr, 0)
+    end
+  end
+end
+
+defmodule Robot do
+  @directions [:up, :right, :down, :left]
+
+  defstruct x: 0, y: 0, dir_index: 1, panels: %{}, painted: MapSet.new()
+
+  def current_direction(%Robot{dir_index: dir_index}), do: Enum.at(@directions, dir_index)
+
+  def turn(robot = %Robot{}, turn_instruction) do
+    new_dir_index =
+      case turn_instruction do
+        0 -> rem(robot.dir_index - 1 + 4, 4)  # Turn left
+        1 -> rem(robot.dir_index + 1, 4)      # Turn right
+      end
+
+    %{robot | dir_index: new_dir_index}
+  end
+
+  def move_forward(robot = %Robot{}) do
+    {x, y} =
+      case current_direction(robot) do
+        :up -> {robot.x, robot.y - 1}
+        :down -> {robot.x, robot.y + 1}
+        :left -> {robot.x - 1, robot.y}
+        :right -> {robot.x + 1, robot.y}
+      end
+
+    %{robot | x: x, y: y}
+  end
+end
+
+defmodule Day11Part2 do
+  def main do
+    # Read Intcode program from 'day11-data.txt'
+    program =
+      "day11-data.txt"
+      |> File.read!()
+      |> String.trim()
+      |> String.split(",")
+      |> Enum.map(&String.to_integer/1)
+
+    # Initialize Intcode computer
+    intcode = Intcode.new(program)
+
+    # Initialize Robot
+    robot = %Robot{}
+
+    # Starting panel (0,0) is white for Part 2
+    initial_panels = Map.put(robot.panels, {0, 0}, 1)
+    robot = %{robot | panels: initial_panels, painted: MapSet.new([{0, 0}])}
+
+    # Start simulation
+    final_robot = simulate(intcode, robot)
+
+    # Render the registration identifier
+    render(final_robot.panels)
+  end
+
+  defp simulate(intcode, robot) do
+    # Get current panel color (default black)
+    current_color = Map.get(robot.panels, {robot.x, robot.y}, 0)
+
+    # Provide input to Intcode
+    intcode = %{intcode | inputs: intcode.inputs ++ [current_color]}
+
+    # Run Intcode until it produces output or halts
+    intcode = Intcode.run(intcode)
+
+    cond do
+      intcode.halted ->
+        robot
+
+      length(intcode.outputs) >= 2 ->
+        # Retrieve two outputs: paint and turn
+        [paint, turn | rest] = intcode.outputs
+        new_outputs = Enum.drop(intcode.outputs, 2)
+
+        # Update Intcode state with remaining outputs
+        intcode = %{intcode | outputs: new_outputs}
+
+        # Paint the current panel
+        new_panels = Map.put(robot.panels, {robot.x, robot.y}, paint)
+        # Record that this panel was painted
+        new_painted = MapSet.put(robot.painted, {robot.x, robot.y})
+
+        # Update robot's state
+        robot = %{robot | panels: new_panels, painted: new_painted}
+        |> Robot.turn(turn)
+        |> Robot.move_forward()
+
+        # Continue simulation
+        simulate(intcode, robot)
+
+      true ->
+        # Awaiting more outputs/input
+        robot
+    end
+  end
+
+  defp render(panels) do
+    # Determine the bounds of the painted panels
+    xs = Enum.map(Map.keys(panels), fn {x, _y} -> x end)
+    ys = Enum.map(Map.keys(panels), fn {_x, y} -> y end)
+
+    min_x = Enum.min(xs)
+    max_x = Enum.max(xs)
+    min_y = Enum.min(ys)
+    max_y = Enum.max(ys)
+
+    # Generate the grid
+    grid =
+      for y <- min_y..max_y do
+        for x <- min_x..max_x do
+          case Map.get(panels, {x, y}, 0) do
+            1 -> "█"  # White panel
+            _ -> " "   # Black panel
+          end
+        end
+        |> Enum.join()
+      end
+
+    # Display the grid
+    IO.puts("\nRegistration Identifier:")
+    Enum.each(grid, &IO.puts/1)
+  end
+end
+
+Day11Part2.main()
+```
+
+### **Explanation of the Code**
+
+1. **Intcode Computer (`Intcode` Module)**:
+   - **Structure**: Remains the same as in Part 1.
+   - **Functionality**: Executes the Intcode program, handling inputs and outputs as required by the robot.
+   - **Key Functions**:
+     - `new/1`: Initializes the Intcode computer with the provided program.
+     - `run/1`: Executes the Intcode program until it halts or awaits input.
+     - **Opcode Handlers**: Manage various operations like addition, multiplication, input, output, jumps, and relative base adjustments.
+
+2. **Robot Simulation (`Robot` Module)**:
+   - **Structure**: Unchanged from Part 1.
+   - **Functionality**:
+     - **Directions**: Maintains current facing direction (`:up`, `:right`, `:down`, `:left`) using `dir_index`.
+     - **Movement & Turning**: Updates direction and moves forward based on Intcode outputs.
+   - **Key Functions**:
+     - `current_direction/1`: Retrieves the robot's current facing direction.
+     - `turn/2`: Updates the robot's direction based on turn instruction (`0` for left, `1` for right).
+     - `move_forward/1`: Moves the robot one step forward in the current direction.
+
+3. **Simulation and Rendering (`Day11Part2` Module)**:
+   - **Initialization**:
+     - **Intcode Program**: Reads from `day11-data.txt`.
+     - **Robot**: Initializes at `(0, 0)`, and crucially, **paints the starting panel white (`1`)**.
+   - **Simulation (`simulate/2`)**:
+     - **Input**: Feeds the current panel's color to the Intcode program.
+     - **Execution**: Runs the Intcode until it produces two outputs (paint and turn) or halts.
+     - **Output Handling**:
+       - **Painting**: Updates the panel's color based on the first output.
+       - **Turning & Moving**: Adjusts direction and moves forward based on the second output.
+       - **Tracking**: Keeps track of all panels painted at least once.
+     - **Termination**: Ends when the Intcode program halts.
+   - **Rendering (`render/1`)**:
+     - **Determine Grid Bounds**: Calculates the minimum and maximum `x` and `y` coordinates to define the display grid.
+     - **Grid Generation**:
+       - Iterates through each position within the bounds.
+       - Displays a filled block (`█`) for white panels (`1`) and a space (` `) for black panels (`0`).
+     - **Display**: Prints the grid line by line to reveal the registration identifier.
+
+4. **Execution**:
+   - Save the code to a file named `day11_part2.exs`.
+   - Ensure your Intcode program is in `day11-data.txt` in the same directory.
+   - Run the program using the command:
+     ```sh
+     elixir day11_part2.exs
+     ```
+   - The output will display the registration identifier painted by the robot.
+
+---
+
+## **Running the Code**
+
+### **Prerequisites**
+
+- **Elixir Installation**: Ensure Elixir is installed on your machine. You can verify by running:
+  ```sh
+  elixir --version
+  ```
+  If not installed, follow the [Elixir installation guide](https://elixir-lang.org/install.html).
+
+### **Setup**
+
+1. **Save the Code**:
+   - Create a file named `day11_part2.exs` and paste the provided code into it.
+
+2. **Prepare Input File**:
+   - Ensure your Intcode program is saved in `day11-data.txt` in the same directory as `day11_part2.exs`.
+   - The file should contain a single line of comma-separated integers.
+
+### **Execution**
+
+Open your terminal, navigate to the directory containing the files, and run:
+
+```sh
+elixir day11_part2.exs
+```
+
+### **Expected Output**
+
+The program will output the registration identifier, typically resembling a set of capital letters. For example:
+
+```
+Registration Identifier:
+ ███  ████  ████  ████  ████ 
+█    █    █    █    █    █   
+███  ████ ████ ████ ████ ████
+█    █    █  █ █    █  █    █
+█    █    █  █ █    █  █    █
+ ███  ████ █  █ ████ █  █ ████
+```
+
+*Note*: The actual output will depend on your specific Intcode program provided in `day11-data.txt`.
+
+---
+
+## **Conclusion**
+
+This Elixir solution effectively simulates the robot's behavior as per **Advent of Code 2019, Day 11, Part 2**. By initializing the starting panel as white and rendering the painted panels after the simulation, it successfully displays the registration identifier.
+
+Feel free to reach out if you have any questions or need further assistance!

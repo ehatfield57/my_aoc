@@ -1,0 +1,121 @@
+> (sort (remove-duplicates (flatten (hash-values rules))) string<?) ; tails
+'("A" "B" "C" "D" "E" "G" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z")
+Missing: F H I
+
+> (sort (hash-keys rules) string<?) ; heads
+'("A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "T" "U" "V" "W" "X" "Y" "Z")
+Missing: S
+
+> rules
+'#hash(("A" . ("N" "U" "S" "K"))
+       ("B" . ("E" "Q" "N"))
+       ("C" . ("E" "Z" "L" "O"))
+       ("D" . ("O" "G" "B" "A" "P" "W"))
+       ("E" . ("K" "L"))
+       ("F" . ("T" "Y" "W" "D" "R"))
+       ("G" . ("Z" "U" "K" "L" "S"))
+       ("H" . ("X" "K"))
+       ("I" . ("C" "G" "M" "P"))
+       ("J" . ("K" "S" "U" "G"))
+       ("K" . ("L"))
+       ("L" . ("S"))
+       ("M" . ("A" "T" "G" "Q" "X" "N" "J"))
+       ("N" . ("Z" "E" "S" "G"))
+       ("O" . ("A" "Z" "N" "J"))
+       ("P" . ("L" "E" "U" "Q" "S"))
+       ("Q" . ("L" "G" "Z" "V" "U"))
+       ("R" . ("J" "L"))
+       ("T" . ("U" "L" "W" "J" "Z" "E" "A"))
+       ("U" . ("E" "K" "L" "S"))
+       ("V" . ("E" "Z" "U"))
+       ("W" . ("Q" "Z" "K" "U"))
+       ("X" . ("Z" "L" "U" "S" "N"))
+       ("Y" . ("U" "O" "D" "V" "N"))
+       ("Z" . ("S" "L" "E" "K" "U")))
+
+More Thinking (Why doesn't my code come up with the correct answer?):
+
+ Second  Worker1 Worker2 Worker3 Worker4 Worker5  Queue                Done
+ ------  ------- ------- ------- ------- -------  -------------------  -------------------------------
+    0     F-66    H-68    I-69      .       .
+  1..65   F-66    H-68    I-69      .       .
+   66     T-147   H-68    I-69     D-131   R-145  W,Y                  F
+   67     T-147   H-68    I-69     D-131   R-145  W,Y                  F
+   68     T-147   K-140   I-69     D-131   R-145  W,X,Y                F,H
+   69     T-147   K-140   C-133    D-131   R-145  G,M,P,W,X,Y          F,H,I
+ 70..130  T-147   K-140   C-133    D-131   R-145  G,M,P,W,X,Y          F,H,I
+  131     T-147   K-140   C-133    A-193   R-145  B,G,M,O,P,W,X,Y      D,F,H,I
+  132     T-147   K-140   C-133    A-193   R-145  B,G,M,O,P,W,X,Y      D,F,H,I
+  133     T-147   K-140   B-196    A-193   R-145  E,G,L,M,O,P,W,X,Y,Z  C,D,F,H,I
+134..139  T-147   K-140   B-196    A-193   R-145  E,G,L,M,O,P,W,X,Y,Z  C,D,F,H,I
+  140     T-147   E-206   B-196    A-193   R-145  G,L,M,O,P,W,X,Y,Z    K,C,D,F,H,I
+141..144  T-147   E-206   B-196    A-193   R-145  G,L,M,O,P,W,X,Y,Z    K,C,D,F,H,I
+  145     T-147   E-206   B-196    A-193   G-213  J,L,M,O,P,W,X,Y,Z    R,K,C,D,F,H,I
+  146     T-147   E-206   B-196    A-193   G-213  J,L,M,O,P,W,X,Y,Z    R,K,C,D,F,H,I
+  147     J-218   E-206   B-196    A-193   G-213  L,M,O,P,U,W,X,Y,Z    T,R,K,C,D,F,H,I
+148..192  J-218   E-206   B-196    A-193   G-213  L,M,O,P,U,W,X,Y,Z    T,R,K,C,D,F,H,I
+  193     J-218   E-206   B-196    L-266   G-213  M,N,O,P,S,U,W,X,Y,Z  A,T,R,K,C,D,F,H,I
+194..195  J-218   E-206   B-196    L-266   G-213  M,N,O,P,S,U,W,X,Y,Z  A,T,R,K,C,D,F,H,I
+  196     J-218   E-206   M-270    L-266   G-213  N,O,P,Q,S,U,W,X,Y,Z  B,A,T,R,K,C,D,F,H,I
+197..205  J-218   E-206   M-270    L-266   G-213  N,O,P,Q,S,U,W,X,Y,Z  B,A,T,R,K,C,D,F,H,I
+  206     J-218   N-281   M-270    L-266   G-213  O,P,Q,S,U,W,X,Y,Z    E,B,A,T,R,K,C,D,F,H,I
+207..212  J-218   N-281   M-270    L-266   G-213  O,P,Q,S,U,W,X,Y,Z    E,B,A,T,R,K,C,D,F,H,I
+  213     J-218   N-281   M-270    L-266   O-289  P,Q,S,U,W,X,Y,Z      G,E,B,A,T,R,K,C,D,F,H,I
+214..217  J-218   N-281   M-270    L-266   O-289  P,Q,S,U,W,X,Y,Z      G,E,B,A,T,R,K,C,D,F,H,I
+  218     O-289   N-281   M-270    L-266   P-295  Q,S,U,W,X,Y,Z        J,G,E,B,A,T,R,K,C,D,F,H,I
+219..265  O-289   N-281   M-270    L-266   P-295  Q,S,U,W,X,Y,Z        J,G,E,B,A,T,R,K,C,D,F,H,I
+  266     O-289   N-281   M-270    Q-344   P-295  S,U,W,X,Y,Z          L,J,G,E,B,A,T,R,K,C,D,F,H,I
+267..269  O-289   N-281   M-270    Q-344   P-295  S,U,W,X,Y,Z          L,J,G,E,B,A,T,R,K,C,D,F,H,I
+  270     O-289   N-281   S-350    Q-344   P-295  U,W,X,Y,Z            M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+271..280  O-289   N-281   S-350    Q-344   P-295  U,W,X,Y,Z            M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+  281     O-289   U-363   S-350    Q-344   P-295  W,X,Y,Z              N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+282..288  O-289   U-363   S-350    Q-344   P-295  W,X,Y,Z              N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+  289     W-373   U-363   S-350    Q-344   P-295  X,Y,Z                O,N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+290..294  W-373   U-363   S-350    Q-344   P-295  X,Y,Z                O,N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+  295     W-373   U-363   S-350    Q-344   X-380  Y,Z                  P,O,N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+296..343  W-373   U-363   S-350    Q-344   X-380  Y,Z                  P,O,N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+  344     W-373   U-363   S-350    V-427   X-380  Y,Z                  Q,P,O,N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+345..349  W-373   U-363   S-350    V-427   X-380  Y,Z                  Q,P,O,N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+  350     W-373   U-363   Y-436    V-427   X-380  Z                    S,Q,P,O,N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+351..362  W-373   U-363   Y-436    V-427   X-380  Z                    S,Q,P,O,N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+  363     W-373   Z-450   Y-436    V-427   X-380                       U,S,Q,P,O,N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+364..372  W-373   Z-450   Y-436    V-427   X-380                       U,S,Q,P,O,N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+  373       .     Z-450   Y-436    V-427   X-380                       W,U,S,Q,P,O,N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+374..379    .     Z-450   Y-436    V-427   X-380                       W,U,S,Q,P,O,N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+  380       .     Z-450   Y-436    V-427     .                         X,W,U,S,Q,P,O,N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+  427       .     Z-450   Y-436      .       .                         V,X,W,U,S,Q,P,O,N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+  436       .     Z-450     .        .       .                         Y,V,X,W,U,S,Q,P,O,N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+  450       .       .       .        .       .                         Z,Y,V,X,W,U,S,Q,P,O,N,M,L,J,G,E,B,A,T,R,K,C,D,F,H,I
+
+
+Test-Data:
+
+Rules:
+(A . (D B))
+(B . (E))
+(C . (F A))
+(D . (E))
+(F . (E))
+
+ Second  Worker1 Worker2 Queue                Done
+ ------  ------- ------- -------------------  -------------------------------
+    0      C-3      .
+    1      C-3      .
+    2      C-3      .
+    3      A-4     F-9   A,F                  C
+    4      B-6     F-9   D                    A,C
+    5      B-6     F-9   D                    A,C
+    6      D-10    F-9   E                    B,A,C
+    7      D-10    F-9   E                    B,A,C
+    8      D-10    F-9   E                    B,A,C
+    9      D-10    E-14  E                    F,B,A,C
+   10       .      E-14                       D,F,B,A,C
+   11       .      E-14                       D,F,B,A,C
+   12       .      E-14                       D,F,B,A,C
+   13       .      E-14                       D,F,B,A,C
+   14       .       .                         E,D,F,B,A,C
+
+MAYBE: It has to do with, if 'E' is the step after 'B', 'D' and 'F', then
+======                     ALL the steps 'B,D,F' must be finished before
+                           starting 'E'.
+
